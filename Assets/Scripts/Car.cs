@@ -5,47 +5,69 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public class PathInfo
+{
+    public Road road;
+    public int attachIndex;
+
+    public PathInfo(Road road, Cell prev)
+    {
+        this.road = road;
+        this.attachIndex = road.GetWayPointIndexFrom(road.GetAttachedIndex(prev));
+    }
+
+    public PathInfo(Road road, int attachIndex)
+    {
+        this.road = road;
+        this.attachIndex = attachIndex;
+    }
+}
+
 public class Car : MonoBehaviour
 {
-    [Serialize] public List<Road> path = new List<Road>();
+    [Serialize] public List<PathInfo> path = new List<PathInfo>();
     public int currentRoadIndex = 0;
     public int currentPointIndex = 0;
 
-    public Point start;
-    public Point destination;
+    public Point startPoint;
+    public Point destinationPoint;
 
     public void PathFind()
     {
-        Cell prev = start;
-        Cell current = start.GetAdjacentCell()[0];
-        while (current is not Point || (Point)current != destination)
+        Cell prev = startPoint;
+        Cell current = startPoint.GetAdjacentCellNotNull()[0];
+        while (current is not Point || (Point)current != destinationPoint)
         {
-            path.Add((Road)current);
-            var adj = current.GetAdjacentCell().Where(cell => cell != prev).ToArray();
+            path.Add(new PathInfo(current as Road, prev));
+            var adj = current.GetAdjacentCellNotNull().Where(cell => cell != prev).ToArray();
             if (adj.Length == 0) break;
             prev = current;
             current = adj[0];
-
-            Debug.Log(prev.isConnected(current).index.Item1 + " / " + prev.isConnected(current).index.Item2);
         }
 
         StartCoroutine(Move());
     }
 
+    public void OnRotate()
+    {
+        PathFind();
+    }
+
     private IEnumerator Move()
     {
-        
         yield return new WaitForSeconds(1f);
-        /*
-        transform.position = path[currentRoadIndex].wayPoint.Item1.points[currentPointIndex].transform.position;
+
+        var road = path[currentRoadIndex].road;
+        var index = path[currentRoadIndex].attachIndex;
+
+        transform.position = road.wayPointAry[index].points[currentPointIndex].transform.position;
 
         currentPointIndex++;
-        if (currentPointIndex >= path[currentRoadIndex].wayPoint.Item1.points.Length)
+        if (currentPointIndex >= road.wayPointAry[index].points.Length)
         {
             currentRoadIndex++;
             currentPointIndex = 0;
         }
         if (currentRoadIndex < path.Count) StartCoroutine(Move());
-        */
     }
 }

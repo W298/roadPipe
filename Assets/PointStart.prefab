@@ -97,7 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 986c948432554d44ab513528655a6b3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellConnection: 01010101
   pointType: 0
   pointIndex: 0
   otherPoint: {fileID: 0}
+  attachPoint: []
   carPrefab: {fileID: 5795605259494003383, guid: 6e2ef4463f6ee2141b0300270f77416d, type: 3}

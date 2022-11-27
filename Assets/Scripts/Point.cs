@@ -21,37 +21,12 @@ public class Point : Cell
 
     public GameObject carPrefab;
 
-    public ConnectionResult isConnected(Road road)
-    {
-		foreach (var way in road.wayPoint)
-		{
-			Vector2[] origin = new Vector2[]
-			{
-				way.points.First().transform.position,
-				way.points.Last().transform.position
-			};
-
-			for (int i = 0; i < attachPoint.Length; i++)
-			{
-				for (int j = 0; j < origin.Length; j++)
-				{
-					if (Vector2.Distance(attachPoint[i], origin[j]) <= 0.001f)
-					{
-						return new ConnectionResult(i / 2, j, true);
-					}
-				}
-			}
-		}
-
-		return new ConnectionResult(-1, -1, false);
-    }
-
     private IEnumerator SpawnCar()
     {
         yield return new WaitForSeconds(1f);
         var car = Instantiate(carPrefab, transform.position, Quaternion.identity).GetComponent<Car>();
-        car.start = this;
-        car.destination = otherPoint;
+        car.startPoint = this;
+        car.destinationPoint = otherPoint;
         car.PathFind();
     }
 

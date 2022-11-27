@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class Cell : MonoBehaviour
@@ -9,45 +10,79 @@ public class Cell : MonoBehaviour
     protected Grid grid;
     private GridController gridController;
 
+    public bool[] cellConnection = new bool[]
+    {
+        false, false, false, false
+    };
+
     public Vector3Int cellPosition => grid.WorldToCell(transform.position);
 
     public Cell[] GetAdjacentCell()
     {
         var cellList = new List<Cell>();
-        var offsetAry = new Vector2Int[] { new(1, 0), new(-1, 0), new(0, 1), new(0, -1) };
+        var offsetAry = new Vector2Int[] { new(1, 0), new(0, 1), new(-1, 0), new(0, -1) };
 
         for (int i = 0; i < offsetAry.Length; i++)
         {
             var cell = gridController.GetCell(cellPosition + (Vector3Int)offsetAry[i]);
-            if (cell != null) cellList.Add(cell);
+            cellList.Add(cell);
         }
 
         return cellList.ToArray();
     }
 
-    public ConnectionResult isConnected(Cell target)
+    public Cell[] GetAdjacentCellNotNull()
     {
-        if (this is Point && target is Point)
+        return Array.FindAll(GetAdjacentCell(), cell => cell != null);
+    }
+
+    public int GetAttachedIndex(Cell target)
+    {
+        int direction = -1;
+        var offsetAry = new Vector2Int[] { new(1, 0), new(0, 1), new(-1, 0), new(0, -1) };
+
+        for (int i = 0; i < offsetAry.Length; i++)
         {
-            return new ConnectionResult(-1, -1, false);
+            var cell = gridController.GetCell(cellPosition + (Vector3Int)offsetAry[i]);
+            if (cell != null && cell == target)
+            {
+                direction = i;
+                break;
+            }
         }
 
-        if (this is Point && target is Road)
-        {
-            return ((Point)this).isConnected((Road)target);
-        }
+        return direction;
+    }
 
-        if (this is Road && target is Point)
-        {
-            return ((Point)target).isConnected((Road)this);
-        }
+    public bool isConnected(Cell target)
+    {
+        int direction = GetAttachedIndex(target);
+        return direction != -1 && isConnected(target, direction);
+    }
 
-        return ((Road)this).isConnected((Road)target);
+    public bool isConnected(Cell target, int direction)
+    {
+        direction += 2;
+        direction %= 4;
+
+        return target.cellConnection[direction];
     }
 
     public void Rotate()
     {
         transform.Rotate(new Vector3(0, 0, 1), 90);
+        RotateConnection();
+        FindObjectOfType<Car>().OnRotate();
+    }
+
+    public void RotateConnection()
+    {
+        bool lastValue = cellConnection.Last();
+        for (int i = cellConnection.Length - 2; i >= 0; i--)
+        {
+            cellConnection[i + 1] = cellConnection[i];
+        }
+        cellConnection[0] = lastValue;
     }
 
     protected void Start()

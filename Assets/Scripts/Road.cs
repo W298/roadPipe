@@ -2,19 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
-
-public struct ConnectionResult
-{
-    public Tuple<int, int> index;
-    public bool isConnected;
-
-    public ConnectionResult(int i, int j, bool isConnected)
-    {
-        index = new Tuple<int, int>(i, j);
-        this.isConnected = isConnected;
-    }
-}
 
 public class WayPoint
 {
@@ -28,7 +17,18 @@ public class WayPoint
 
 public class Road : Cell
 {
-    public WayPoint[] wayPoint;
+    public RoadInfo roadInfo;
+    public WayPoint[] wayPointAry;
+
+    public int GetWayPointIndexFrom(int from)
+    {
+        return roadInfo.directionAry[(int)transform.rotation.eulerAngles.z / 90].data.FindIndex(d => d.from == from);
+    }
+
+    public int GetWayPointIndexTo(int to)
+    {
+        return roadInfo.directionAry[(int)transform.rotation.eulerAngles.z / 90].data.FindIndex(d => d.to == to);
+    }
 
     private void SetWayPoint()
     {
@@ -43,41 +43,7 @@ public class Road : Cell
             wayPointList.Add(new WayPoint(l.ToArray()));
         }
 
-        wayPoint = wayPointList.ToArray();
-    }
-
-    public ConnectionResult isConnected(Road target)
-    {
-        foreach (var way in wayPoint)
-        {
-            Vector2[] origin = new Vector2[]
-            {
-                way.points.First().transform.position,
-                way.points.Last().transform.position
-            };
-
-            foreach (var targetWay in target.wayPoint)
-            {
-                Vector2[] cand = new Vector2[]
-                {
-                    targetWay.points.First().transform.position,
-                    targetWay.points.Last().transform.position
-                };
-
-                for (int i = 0; i < origin.Length; i++)
-                {
-                    for (int j = 0; j < cand.Length; j++)
-                    {
-                        if (Vector2.Distance(origin[i], cand[j]) <= 0.001f)
-                        {
-                            return new ConnectionResult(i, j, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        return new ConnectionResult(-1, -1, false);
+        wayPointAry = wayPointList.ToArray();
     }
 
     protected new void Start()

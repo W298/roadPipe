@@ -225,6 +225,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 567708f3d32f4d7479e3e9dd2c9d2b88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellConnection: 01000100
+  roadInfo: {fileID: 11400000, guid: 941a31127b0aeef4889cdda262b652ad, type: 2}
 --- !u!1 &5814120073576616970
 GameObject:
   m_ObjectHideFlags: 0
