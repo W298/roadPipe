@@ -21,9 +21,29 @@ public class Point : Cell
 
     public GameObject carPrefab;
 
-    public Tuple<bool, bool> isConnected(Road road)
+    public ConnectionResult isConnected(Road road)
     {
-        return new Tuple<bool, bool>(true, false);
+		foreach (var way in road.wayPoint)
+		{
+			Vector2[] origin = new Vector2[]
+			{
+				way.points.First().transform.position,
+				way.points.Last().transform.position
+			};
+
+			for (int i = 0; i < attachPoint.Length; i++)
+			{
+				for (int j = 0; j < origin.Length; j++)
+				{
+					if (Vector2.Distance(attachPoint[i], origin[j]) <= 0.001f)
+					{
+						return new ConnectionResult(i / 2, j, true);
+					}
+				}
+			}
+		}
+
+		return new ConnectionResult(-1, -1, false);
     }
 
     private IEnumerator SpawnCar()

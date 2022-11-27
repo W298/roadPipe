@@ -32,7 +32,6 @@ public class Cell : MonoBehaviour
             return new ConnectionResult(-1, -1, false);
         }
 
-        /*
         if (this is Point && target is Road)
         {
             return ((Point)this).isConnected((Road)target);
@@ -42,7 +41,6 @@ public class Cell : MonoBehaviour
         {
             return ((Point)target).isConnected((Road)this);
         }
-        */
 
         return ((Road)this).isConnected((Road)target);
     }
