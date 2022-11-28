@@ -12,8 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9567e6f5f9d6828408a8131ba5655a06, type: 3}
   m_Name: 1r
   m_EditorClassIdentifier: 
-  directionInfo:
-  - data: 0000000002000000
-  - data: 0300000001000000
-  - data: 0200000000000000
-  - data: 0100000003000000
+  directionAry:
+  - data:
+    - from: 2
+      to: 0
+    - from: 0
+      to: 2
+  - data:
+    - from: 1
+      to: 3
+    - from: 3
+      to: 1
+  - data:
+    - from: 0
+      to: 2
+    - from: 2
+      to: 0
+  - data:
+    - from: 3
+      to: 1
+    - from: 1
+      to: 3

@@ -34,6 +34,8 @@ public class Car : MonoBehaviour
 
     public void PathFind()
     {
+        path.Clear();
+
         Cell prev = startPoint;
         Cell current = startPoint.GetAdjacentCellNotNull()[0];
         while (current is not Point || (Point)current != destinationPoint)
@@ -66,7 +68,7 @@ public class Car : MonoBehaviour
         if (currentPointIndex >= road.wayPointAry[index].points.Length)
         {
             currentRoadIndex++;
-            currentPointIndex = 0;
+            currentPointIndex = 1;
         }
         if (currentRoadIndex < path.Count) StartCoroutine(Move());
     }
