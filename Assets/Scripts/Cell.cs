@@ -54,6 +54,11 @@ public class Cell : MonoBehaviour
         return direction;
     }
 
+    public Cell[] GetConnectedCell()
+    {
+        return GetAdjacentCell().Where((cell, index) => cell != null && isConnected(cell, index)).ToArray();
+    }
+
     public bool isConnected(Cell target)
     {
         int direction = GetAttachedIndex(target);
