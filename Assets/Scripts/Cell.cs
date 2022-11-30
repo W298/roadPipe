@@ -56,6 +56,15 @@ public class Cell : MonoBehaviour
 
     public Cell[] GetConnectedCell()
     {
+        return GetAdjacentCell().Select((cell, index) =>
+        {
+            if (cell != null && isConnected(cell, index)) return cell;
+            return null;
+        }).ToArray();
+    }
+
+    public Cell[] GetConnectedCellNotNull()
+    {
         return GetAdjacentCell().Where((cell, index) => cell != null && isConnected(cell, index)).ToArray();
     }
 
@@ -78,6 +87,7 @@ public class Cell : MonoBehaviour
         transform.Rotate(new Vector3(0, 0, 1), 90);
         RotateConnection();
         FindObjectOfType<Car>().OnRotate();
+        gridController.OnRotate();
     }
 
     public void RotateConnection()

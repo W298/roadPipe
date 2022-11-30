@@ -16,13 +16,18 @@ public class PathInfo
     public PathInfo(Road road, Cell prev)
     {
         this.road = road;
-        this.attachIndex = road.GetWayPointIndexFrom(road.GetAttachedIndex(prev));
+        SetAttachIndex(prev);
     }
 
     public PathInfo(Road road, int attachIndex)
     {
         this.road = road;
         this.attachIndex = attachIndex;
+    }
+
+    public void SetAttachIndex(Cell prev)
+    {
+        attachIndex = road.GetWayPointIndexFrom(road.GetAttachedIndex(prev));
     }
 }
 
@@ -34,23 +39,20 @@ public class Car : MonoBehaviour
     public Point startPoint;
     public Point destinationPoint;
 
+    public Cell prev;
+    public Cell current;
+
     private float t = 0;
+    private GridController gridController;
 
     public void PathFind()
     {
         path.Clear();
+        path = gridController.RequestPath(prev ?? current, current, destinationPoint);
+    }
 
-        Cell prev = startPoint;
-        Cell current = startPoint.GetConnectedCell()[0];
-        while (current is not Point || (Point)current != destinationPoint)
-        {
-            path.Add(new PathInfo(current as Road, prev));
-            var adj = current.GetConnectedCell().Where(cell => cell != prev).ToArray();
-            if (adj.Length == 0) break;
-            prev = current;
-            current = adj[0];
-        }
-
+    public void StartMove()
+    {
         StartCoroutine(Move());
     }
 
@@ -69,9 +71,9 @@ public class Car : MonoBehaviour
             while (t < 1)
             {
                 transform.position = Linear(road.wayPointAry[index].points[0].transform.position, road.wayPointAry[index].points[1].transform.position, t);
-                t += 0.001f;
+                t += 0.01f;
 
-                yield return new WaitForEndOfFrame();
+                yield return new WaitForFixedUpdate();
             }
         }
         else
@@ -84,8 +86,8 @@ public class Car : MonoBehaviour
                     road.wayPointAry[index].points[2].transform.position, t);
                 transform.right = transform.position - originalPosition;
 
-                t += 0.001f;
-                yield return new WaitForEndOfFrame();
+                t += 0.01f;
+                yield return new WaitForFixedUpdate();
             }
         }
 
@@ -103,5 +105,10 @@ public class Car : MonoBehaviour
     private static Vector2 Bezier(Vector2 start, Vector2 control, Vector2 end, float t)
     {
         return (((1 - t) * (1 - t)) * start) + (2 * t * (1 - t) * control) + ((t * t) * end);
+    }
+
+    private void Awake()
+    {
+        gridController = FindObjectOfType<GridController>();
     }
 }

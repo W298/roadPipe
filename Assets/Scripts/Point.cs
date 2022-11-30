@@ -27,7 +27,13 @@ public class Point : Cell
         var car = Instantiate(carPrefab, transform.position, Quaternion.identity).GetComponent<Car>();
         car.startPoint = this;
         car.destinationPoint = otherPoint;
+        car.current = this;
+        car.prev = null;
         car.PathFind();
+        car.StartMove();
+
+        yield return new WaitForSeconds(2f);
+        StartCoroutine(SpawnCar());
     }
 
     private void SetAttachPoint()
