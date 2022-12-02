@@ -58,14 +58,14 @@ public class Cell : MonoBehaviour
     {
         return GetAdjacentCell().Select((cell, index) =>
         {
-            if (cell != null && isConnected(cell, index)) return cell;
+            if (cell != null && cellConnection[index] && isConnected(cell, index)) return cell;
             return null;
         }).ToArray();
     }
 
     public Cell[] GetConnectedCellNotNull()
     {
-        return GetAdjacentCell().Where((cell, index) => cell != null && isConnected(cell, index)).ToArray();
+        return GetConnectedCell().Where(cell => cell != null).ToArray();
     }
 
     public bool isConnected(Cell target)

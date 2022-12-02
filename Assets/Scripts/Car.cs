@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using UnityEditor.U2D.Path.GUIFramework;
 using UnityEngine;
 
+[Serializable]
 public class PathInfo
 {
     public Road road;
@@ -35,6 +36,8 @@ public class Car : MonoBehaviour
 {
     [Serialize] public List<PathInfo> path = new List<PathInfo>();
     public int currentRoadIndex = 0;
+    public int currentRoadRunningIndex = 0;
+    public bool hasValidPath = false;
 
     public Point startPoint;
     public Point destinationPoint;
@@ -47,12 +50,36 @@ public class Car : MonoBehaviour
 
     public void PathFind()
     {
-        path.Clear();
-        path = gridController.RequestPath(prev ?? current, current, destinationPoint);
+        var newPath = gridController.RequestPath(prev, current, destinationPoint);
+        hasValidPath = newPath.Count != 0;
+
+        if (path.Count == 0)
+        {
+            path = newPath;
+            return;
+        }
+
+        path.RemoveRange(currentRoadIndex + 1, path.Count - currentRoadIndex - 1);
+        if (hasValidPath) path.AddRange(newPath);
     }
 
     public void StartMove()
     {
+        if (!hasValidPath)
+        {
+            var next = FindConnectedRoad(current);
+            if (next.road == null || next.attachIndex == -1) return;
+
+            path.Add(next);
+            prev = current;
+            current = next.road;
+        }
+        else
+        {
+            prev = current;
+            current = path[0].road;
+        }
+
         StartCoroutine(Move());
     }
 
@@ -64,7 +91,9 @@ public class Car : MonoBehaviour
     private IEnumerator Move()
     {
         var road = path[currentRoadIndex].road;
-        var index = path[currentRoadIndex].attachIndex;
+        var index = path[currentRoadIndex].attachIndex == -1 ? currentRoadRunningIndex : path[currentRoadIndex].attachIndex;
+
+        currentRoadRunningIndex = index;
 
         if (road.wayPointAry[index].points.Length == 2)
         {
@@ -94,7 +123,43 @@ public class Car : MonoBehaviour
         currentRoadIndex++;
         t = 0;
 
-        if (currentRoadIndex < path.Count) StartCoroutine(Move());
+        if (!hasValidPath)
+        {
+            var next = FindConnectedRoad(current);
+            if (next.road == null || next.attachIndex == -1) yield break;
+
+            path.Add(next);
+            prev = current;
+            current = next.road;
+            StartCoroutine(Move());
+        }
+
+        if (hasValidPath && currentRoadIndex < path.Count)
+        {
+            prev = current;
+            current = path[currentRoadIndex].road;
+            StartCoroutine(Move());
+        }
+    }
+
+    private PathInfo FindConnectedRoad(Cell targetCell)
+    {
+        Road nextRoad = null;
+        int nextIndex = -1;
+        foreach (var adjCell in targetCell.GetConnectedCell().Where(cell => !path.Exists(p => p.road == cell)))
+        {
+            if (adjCell is not Road) continue;
+            var adjRoad = adjCell as Road;
+            var adjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetAttachedIndex(targetCell));
+            if (adjIndex != -1)
+            {
+                nextRoad = adjRoad;
+                nextIndex = adjIndex;
+                break;
+            }
+        }
+
+        return new PathInfo(nextRoad, nextIndex);
     }
 
     private static Vector2 Linear(Vector2 start, Vector2 end, float t)
