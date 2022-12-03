@@ -21,10 +21,14 @@ public class Point : Cell
 
     public GameObject carPrefab;
 
+    private int carCount = 0;
+
     private IEnumerator SpawnCar()
     {
         yield return new WaitForSeconds(1f);
         var car = Instantiate(carPrefab, transform.position, Quaternion.identity).GetComponent<Car>();
+        car.name = carCount.ToString();
+        carCount++;
         car.startPoint = this;
         car.destinationPoint = otherPoint;
         car.current = this;

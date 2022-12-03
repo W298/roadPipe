@@ -1,12 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using Unity.VisualScripting;
-using UnityEditor.U2D.Path.GUIFramework;
 using UnityEngine;
+using UnityEngine.UI;
 
 [Serializable]
 public class PathInfo
@@ -38,6 +36,7 @@ public class Car : MonoBehaviour
     public int currentRoadIndex = 0;
     public int currentRoadRunningIndex = 0;
     public bool hasValidPath = false;
+    public bool arrived = false;
 
     public Point startPoint;
     public Point destinationPoint;
@@ -47,6 +46,7 @@ public class Car : MonoBehaviour
 
     private float t = 0;
     private GridController gridController;
+    private Text nameText;
 
     public void PathFind()
     {
@@ -59,7 +59,10 @@ public class Car : MonoBehaviour
             return;
         }
 
-        path.RemoveRange(currentRoadIndex + 1, path.Count - currentRoadIndex - 1);
+        if (currentRoadIndex < path.Count - 1)
+        {
+            path.RemoveRange(currentRoadIndex + 1, path.Count - currentRoadIndex - 1);
+        }
         if (hasValidPath) path.AddRange(newPath);
     }
 
@@ -85,7 +88,7 @@ public class Car : MonoBehaviour
 
     public void OnRotate()
     {
-        PathFind();
+        if (!arrived && !destinationPoint.isConnected(current)) PathFind();
     }
 
     private IEnumerator Move()
@@ -126,20 +129,29 @@ public class Car : MonoBehaviour
         if (!hasValidPath)
         {
             var next = FindConnectedRoad(current);
-            if (next.road == null || next.attachIndex == -1) yield break;
+            if (next.road == null || next.attachIndex == -1)
+            {
+                DestroyCar();
+                yield break;
+            }
 
             path.Add(next);
             prev = current;
             current = next.road;
-            StartCoroutine(Move());
         }
-
-        if (hasValidPath && currentRoadIndex < path.Count)
+        else
         {
+            if (currentRoadIndex >= path.Count)
+            {
+                ParkCar();
+                yield break;
+            }
+
             prev = current;
             current = path[currentRoadIndex].road;
-            StartCoroutine(Move());
         }
+
+        StartCoroutine(Move());
     }
 
     private PathInfo FindConnectedRoad(Cell targetCell)
@@ -162,6 +174,16 @@ public class Car : MonoBehaviour
         return new PathInfo(nextRoad, nextIndex);
     }
 
+    private void ParkCar()
+    {
+        arrived = true;
+    }
+
+    private void DestroyCar()
+    {
+        Destroy(gameObject);
+    }
+
     private static Vector2 Linear(Vector2 start, Vector2 end, float t)
     {
         return start + (end - start) * t;
@@ -175,5 +197,11 @@ public class Car : MonoBehaviour
     private void Awake()
     {
         gridController = FindObjectOfType<GridController>();
+        nameText = GetComponentInChildren<Text>();
+    }
+
+    private void Start()
+    {
+        nameText.text = gameObject.name;
     }
 }

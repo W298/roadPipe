@@ -84,9 +84,15 @@ public class Cell : MonoBehaviour
 
     public void Rotate()
     {
+        var carAry = FindObjectsOfType<Car>();
+        if (carAry.Any(car => car.current == this)) return;
+
         transform.Rotate(new Vector3(0, 0, 1), 90);
         RotateConnection();
-        FindObjectOfType<Car>().OnRotate();
+        foreach (var car in carAry)
+        {
+            car.OnRotate();
+        }
         gridController.OnRotate();
     }
 
