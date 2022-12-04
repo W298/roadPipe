@@ -103,17 +103,13 @@ public class GridController : MonoBehaviour
         grid = GetComponent<Grid>();
 
         var pointAry = GetComponentsInChildren<Point>();
-        var groupedPointAry = new Point[pointAry.Length / 2, 2];
-
-        foreach (Point point in pointAry)
+        foreach (var startPoint in pointAry.Where(point => point.pointType == PointType.START))
         {
-            groupedPointAry[point.pointIndex, (int)point.pointType] = point;
-        }
+            var endPoint = pointAry.FirstOrDefault(point => point.pointType == PointType.END && point.pointTheme.name == startPoint.pointTheme.name);
+            if (endPoint == null) continue;
 
-        for (int i = 0; i < pointAry.Length / 2; i++)
-        {
-            groupedPointAry[i, 0].otherPoint = groupedPointAry[i, 1];
-            groupedPointAry[i, 1].otherPoint = groupedPointAry[i, 0];
+            startPoint.otherPoint = endPoint;
+            endPoint.otherPoint = startPoint;
         }
     }
 }

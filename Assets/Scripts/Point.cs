@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public enum PointType
 {
@@ -14,11 +13,10 @@ public enum PointType
 public class Point : Cell
 {
     public PointType pointType;
-    public int pointIndex;
+    public ThemeName pointThemeName;
+    public Theme pointTheme => GameManager.instance.GetTheme(pointThemeName);
     public Point otherPoint;
-
     public Vector2[] attachPoint;
-
     public GameObject carPrefab;
 
     private int carCount = 0;
@@ -57,9 +55,15 @@ public class Point : Cell
         attachPoint = offsetList.Select(offset => (Vector2)transform.position + offset).ToArray();
     }
 
+    private void ApplyTheme()
+    {
+        transform.GetChild(0).GetComponent<SpriteRenderer>().color = pointTheme.color;
+    }
+
     protected new void Start()
     {
         base.Start();
+        ApplyTheme();
         SetAttachPoint();
         if (pointType == PointType.START) StartCoroutine(SpawnCar());
     }

@@ -110,15 +110,29 @@ public class Car : MonoBehaviour
         }
         else
         {
+            var start = road.wayPointAry[index].points[0].transform.position;
+            var control = road.wayPointAry[index].points[1].transform.position;
+            var end = road.wayPointAry[index].points[2].transform.position;
+            var a = start + (control - start).normalized * 0.15f;
+            var b = end + (control - end).normalized * 0.15f;
             while (t < 1)
             {
                 var originalPosition = transform.position;
-                transform.position = Bezier(road.wayPointAry[index].points[0].transform.position,
-                    road.wayPointAry[index].points[1].transform.position,
-                    road.wayPointAry[index].points[2].transform.position, t);
-                transform.right = transform.position - originalPosition;
+                if (t <= 0.2f)
+                {
+                    transform.position = Linear(start, a, t * 5);
+                }
+                else if (t >= 0.8f)
+                {
+                    transform.position = Linear(b, end, (t - 0.8f) * 5);
+                }
+                else
+                {
+                    transform.position = Bezier(a, control, b, (t - 0.2f) * (10f / 6f));
+                    transform.right = transform.position - originalPosition;
+                }
 
-                t += 0.01f;
+                t += 0.005f / Vector2.Distance(a, b) * 0.85f;
                 yield return new WaitForFixedUpdate();
             }
         }
