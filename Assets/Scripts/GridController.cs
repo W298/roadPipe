@@ -49,33 +49,33 @@ public class GridController : MonoBehaviour
         pathFindResultList.Clear();
     }
 
-    public List<PathInfo> RequestPath(Cell prev, Cell current, Cell destination)
+    public List<PathInfo> RequestPath(Cell start, Cell destination)
     {
-        var pathFindResult = pathFindResultList.FirstOrDefault(res => res.start == current && res.destination == destination);
-        return pathFindResult == null ? CaculatePath(prev, current, destination) : pathFindResult.path;
+        var pathFindResult = pathFindResultList.FirstOrDefault(res => res.start == start && res.destination == destination);
+        return pathFindResult == null ? CaculatePath(start, destination) : pathFindResult.path;
     }
 
-    private List<PathInfo> CaculatePath(Cell prev, Cell current, Cell destination)
+    private List<PathInfo> CaculatePath(Cell start, Cell destination)
     {
         var shortestPath = new List<PathInfo>();
         var currentPath = new List<PathInfo>();
-        PathFindRecursive(ref shortestPath, currentPath, current, destination);
+        PathFindRecursive(ref shortestPath, currentPath, start, destination);
         if (shortestPath.Count <= 0) return shortestPath;
 
         for (int i = shortestPath.Count - 1; i >= 1; i--)
         {
             shortestPath[i].SetAttachIndex(shortestPath[i - 1].road);
         }
-        shortestPath[0].SetAttachIndex(prev);
+        shortestPath[0].SetAttachIndex(start);
 
-        pathFindResultList.Add(new PathFindResult(shortestPath, current, destination));
+        pathFindResultList.Add(new PathFindResult(shortestPath, start, destination));
 
         return shortestPath;
     }
 
-    private void PathFindRecursive(ref List<PathInfo> shortestPath, List<PathInfo> path, Cell current, Cell destination)
+    private void PathFindRecursive(ref List<PathInfo> shortestPath, List<PathInfo> path, Cell start, Cell destination)
     {
-        var connectedCellAry = current.GetConnectedCell();
+        var connectedCellAry = start.GetConnectedCell();
         if (connectedCellAry.All(c => c == null)) return;
 
         foreach (Cell cell in connectedCellAry.Where(c => c != null))
@@ -98,10 +98,13 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         grid = GetComponent<Grid>();
+    }
 
+    private void Start()
+    {
         var pointAry = GetComponentsInChildren<Point>();
         foreach (var startPoint in pointAry.Where(point => point.pointType == PointType.START))
         {

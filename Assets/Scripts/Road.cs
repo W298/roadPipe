@@ -46,9 +46,8 @@ public class Road : Cell
         wayPointAry = wayPointList.ToArray();
     }
 
-    protected new void Start()
+    private void Start()
     {
-        base.Start();
         SetWayPoint();
     }
 }

@@ -85,7 +85,7 @@ public class Cell : MonoBehaviour
     public void Rotate()
     {
         var carAry = FindObjectsOfType<Car>();
-        if (carAry.Any(car => car.current == this)) return;
+        if (carAry.Any(car => car.currentRoad == this)) return;
 
         transform.Rotate(new Vector3(0, 0, 1), 90);
         RotateConnection();
@@ -106,7 +106,7 @@ public class Cell : MonoBehaviour
         cellConnection[0] = lastValue;
     }
 
-    protected void Start()
+    protected void Awake()
     {
         grid = transform.parent.GetComponent<Grid>();
         gridController = transform.parent.GetComponent<GridController>();

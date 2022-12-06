@@ -8,7 +8,7 @@ public class InputManager : MonoBehaviour
 {
     private GridController gridController;
 
-    private void Start()
+    private void Awake()
     {
         gridController = FindObjectOfType<GridController>();
     }

@@ -6,30 +6,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-[Serializable]
-public class PathInfo
-{
-    public Road road;
-    public int attachIndex;
-
-    public PathInfo(Road road, Cell prev)
-    {
-        this.road = road;
-        SetAttachIndex(prev);
-    }
-
-    public PathInfo(Road road, int attachIndex)
-    {
-        this.road = road;
-        this.attachIndex = attachIndex;
-    }
-
-    public void SetAttachIndex(Cell prev)
-    {
-        attachIndex = road.GetWayPointIndexFrom(road.GetAttachedIndex(prev));
-    }
-}
-
 public class Car : MonoBehaviour
 {
     [Serialize] public List<PathInfo> path = new List<PathInfo>();
@@ -41,46 +17,44 @@ public class Car : MonoBehaviour
     public Point startPoint;
     public Point destinationPoint;
 
-    public Cell prev;
-    public Cell current;
+    public Road currentRoad;
 
     private float t = 0;
     private GridController gridController;
     private Text nameText;
 
-    public void PathFind()
+    public bool PathFind(Cell start, Cell destination)
     {
-        var newPath = gridController.RequestPath(prev, current, destinationPoint);
+        var newPath = gridController.RequestPath(start, destination);
         hasValidPath = newPath.Count != 0;
+
+        if (!hasValidPath)
+        {
+            return false;
+        }
 
         if (path.Count == 0)
         {
-            path = newPath;
-            return;
+            OverridePath(newPath);
+        }
+        else
+        {
+            ReplacePath(newPath);
         }
 
-        if (currentRoadIndex < path.Count - 1)
-        {
-            path.RemoveRange(currentRoadIndex + 1, path.Count - currentRoadIndex - 1);
-        }
-        if (hasValidPath) path.AddRange(newPath);
+        return true;
     }
 
     public void StartMove()
     {
+        PathFind(startPoint, destinationPoint);
+
         if (!hasValidPath)
         {
-            var next = FindConnectedRoad(current);
+            var next = FindConnectedRoad(startPoint);
             if (next.road == null || next.attachIndex == -1) return;
 
             path.Add(next);
-            prev = current;
-            current = next.road;
-        }
-        else
-        {
-            prev = current;
-            current = path[0].road;
         }
 
         StartCoroutine(Move());
@@ -88,21 +62,68 @@ public class Car : MonoBehaviour
 
     public void OnRotate()
     {
-        if (!arrived && !destinationPoint.isConnected(current)) PathFind();
+        if (NeedPathFind()) PathFind(currentRoad, destinationPoint);
+    }
+
+    private void OverridePath(List<PathInfo> newPath)
+    {
+        path = newPath;
+    }
+
+    private void ClearAfterPath()
+    {
+        path.RemoveRange(currentRoadIndex + 1, path.Count - currentRoadIndex - 1);
+    }
+
+    private void ReplacePath(List<PathInfo> newPath)
+    {
+        ClearAfterPath();
+        path.AddRange(newPath);
+    }
+
+    private bool NeedPathFind()
+    {
+        return !arrived && !destinationPoint.isConnected(currentRoad);
+    }
+
+    private bool SetNextRoad()
+    {
+        currentRoadIndex++;
+        t = 0;
+
+        if (!hasValidPath)
+        {
+            var next = FindConnectedRoad(currentRoad);
+            if (next.road == null || next.attachIndex == -1)
+            {
+                DestroyCar();
+                return false;
+            }
+
+            path.Add(next);
+        }
+        else
+        {
+            if (currentRoadIndex >= path.Count)
+            {
+                ParkCar();
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private IEnumerator Move()
     {
-        var road = path[currentRoadIndex].road;
-        var index = path[currentRoadIndex].attachIndex == -1 ? currentRoadRunningIndex : path[currentRoadIndex].attachIndex;
+        currentRoad = path[currentRoadIndex].road;
+        currentRoadRunningIndex = path[currentRoadIndex].attachIndex == -1 ? currentRoadRunningIndex : path[currentRoadIndex].attachIndex;
 
-        currentRoadRunningIndex = index;
-
-        if (road.wayPointAry[index].points.Length == 2)
+        if (currentRoad.wayPointAry[currentRoadRunningIndex].points.Length == 2)
         {
             while (t < 1)
             {
-                transform.position = Linear(road.wayPointAry[index].points[0].transform.position, road.wayPointAry[index].points[1].transform.position, t);
+                transform.position = Linear(currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position, currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position, t);
                 t += 0.01f;
 
                 yield return new WaitForFixedUpdate();
@@ -110,26 +131,27 @@ public class Car : MonoBehaviour
         }
         else
         {
-            var start = road.wayPointAry[index].points[0].transform.position;
-            var control = road.wayPointAry[index].points[1].transform.position;
-            var end = road.wayPointAry[index].points[2].transform.position;
+            var start = currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position;
+            var control = currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position;
+            var end = currentRoad.wayPointAry[currentRoadRunningIndex].points[2].transform.position;
             var a = start + (control - start).normalized * 0.15f;
             var b = end + (control - end).normalized * 0.15f;
+
             while (t < 1)
             {
                 var originalPosition = transform.position;
-                if (t <= 0.2f)
+                switch (t)
                 {
-                    transform.position = Linear(start, a, t * 5);
-                }
-                else if (t >= 0.8f)
-                {
-                    transform.position = Linear(b, end, (t - 0.8f) * 5);
-                }
-                else
-                {
-                    transform.position = Bezier(a, control, b, (t - 0.2f) * (10f / 6f));
-                    transform.right = transform.position - originalPosition;
+                    case <= 0.2f:
+                        transform.position = Linear(start, a, t * 5);
+                        break;
+                    case >= 0.8f:
+                        transform.position = Linear(b, end, (t - 0.8f) * 5);
+                        break;
+                    default:
+                        transform.position = Bezier(a, control, b, (t - 0.2f) * (10f / 6f));
+                        transform.right = transform.position - originalPosition;
+                        break;
                 }
 
                 t += 0.005f / Vector2.Distance(a, b) * 0.85f;
@@ -137,43 +159,20 @@ public class Car : MonoBehaviour
             }
         }
 
-        currentRoadIndex++;
-        t = 0;
-
-        if (!hasValidPath)
-        {
-            var next = FindConnectedRoad(current);
-            if (next.road == null || next.attachIndex == -1)
-            {
-                DestroyCar();
-                yield break;
-            }
-
-            path.Add(next);
-            prev = current;
-            current = next.road;
-        }
-        else
-        {
-            if (currentRoadIndex >= path.Count)
-            {
-                ParkCar();
-                yield break;
-            }
-
-            prev = current;
-            current = path[currentRoadIndex].road;
-        }
-
-        StartCoroutine(Move());
+        var needNextMove = SetNextRoad();
+        if (needNextMove) StartCoroutine(Move());
     }
 
     private PathInfo FindConnectedRoad(Cell targetCell)
     {
         Road nextRoad = null;
         int nextIndex = -1;
-        foreach (var adjCell in targetCell.GetConnectedCell().Where(cell => !path.Exists(p => p.road == cell)))
+
+        Cell[] searchPath = targetCell.GetConnectedCell();
+        foreach (var adjCell in searchPath)
         {
+            if (path.Exists(p => p.road == adjCell) && path.FindIndex(p => p.road == adjCell) < currentRoadIndex) continue;
+
             if (adjCell is not Road) continue;
             var adjRoad = adjCell as Road;
             var adjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetAttachedIndex(targetCell));

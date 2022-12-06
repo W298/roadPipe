@@ -16,7 +16,6 @@ public class Point : Cell
     public ThemeName pointThemeName;
     public Theme pointTheme => GameManager.instance.GetTheme(pointThemeName);
     public Point otherPoint;
-    public Vector2[] attachPoint;
     public GameObject carPrefab;
 
     private int carCount = 0;
@@ -29,30 +28,10 @@ public class Point : Cell
         carCount++;
         car.startPoint = this;
         car.destinationPoint = otherPoint;
-        car.current = this;
-        car.prev = null;
-        car.PathFind();
         car.StartMove();
 
         yield return new WaitForSeconds(2f);
         StartCoroutine(SpawnCar());
-    }
-
-    private void SetAttachPoint()
-    {
-        var offsetList = new Vector2[]
-        {
-            new(0.5f, -0.095f),
-            new(0.5f, 0.095f),
-            new(0.095f, 0.5f),
-            new(-0.095f, 0.5f),
-            new(-0.5f, 0.095f),
-            new(-0.5f, -0.095f),
-            new(-0.095f, -0.5f),
-            new(0.095f, -0.5f),
-        };
-
-        attachPoint = offsetList.Select(offset => (Vector2)transform.position + offset).ToArray();
     }
 
     private void ApplyTheme()
@@ -60,11 +39,9 @@ public class Point : Cell
         transform.GetChild(0).GetComponent<SpriteRenderer>().color = pointTheme.color;
     }
 
-    protected new void Start()
+    private void Start()
     {
-        base.Start();
         ApplyTheme();
-        SetAttachPoint();
         if (pointType == PointType.START) StartCoroutine(SpawnCar());
     }
 }
