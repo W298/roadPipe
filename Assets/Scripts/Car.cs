@@ -22,6 +22,7 @@ public class Car : MonoBehaviour
     private float t = 0;
     private GridController gridController;
     private Text nameText;
+    private SpriteRenderer backgroundSprite;
 
     public bool PathFind(Cell start, Cell destination)
     {
@@ -62,7 +63,8 @@ public class Car : MonoBehaviour
 
     public void OnRotate()
     {
-        if (NeedPathFind()) PathFind(currentRoad, destinationPoint);
+        if (!NeedPathFind()) return;
+        PathFind(currentRoad != null ? currentRoad : startPoint, destinationPoint);
     }
 
     private void OverridePath(List<PathInfo> newPath)
@@ -121,6 +123,9 @@ public class Car : MonoBehaviour
 
         if (currentRoad.wayPointAry[currentRoadRunningIndex].points.Length == 2)
         {
+            var dir = currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position -
+                      currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position;
+            transform.right = dir;
             while (t < 1)
             {
                 transform.position = Linear(currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position, currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position, t);
@@ -168,18 +173,20 @@ public class Car : MonoBehaviour
         Road nextRoad = null;
         int nextIndex = -1;
 
-        Cell[] searchPath = targetCell.GetConnectedCell();
-        foreach (var adjCell in searchPath)
+        foreach (var adjCell in targetCell.GetConnectedCellNotNull())
         {
             if (path.Exists(p => p.road == adjCell) && path.FindIndex(p => p.road == adjCell) < currentRoadIndex) continue;
 
             if (adjCell is not Road) continue;
             var adjRoad = adjCell as Road;
-            var adjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetAttachedIndex(targetCell));
-            if (adjIndex != -1)
+
+            var targetAdjIndex = targetCell is Road targetRoad ? targetRoad.GetWayPointIndexTo(targetRoad.GetAttachedIndex(adjRoad)) : currentRoadRunningIndex;
+            var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetAttachedIndex(targetCell));
+
+            if (adjRoadAdjIndex != -1 && targetAdjIndex == currentRoadRunningIndex)
             {
                 nextRoad = adjRoad;
-                nextIndex = adjIndex;
+                nextIndex = adjRoadAdjIndex;
                 break;
             }
         }
@@ -190,11 +197,17 @@ public class Car : MonoBehaviour
     private void ParkCar()
     {
         arrived = true;
+        Destroy(gameObject);
     }
 
     private void DestroyCar()
     {
         Destroy(gameObject);
+    }
+
+    public void ApplyTheme(Color color)
+    {
+        backgroundSprite.color = color;
     }
 
     private static Vector2 Linear(Vector2 start, Vector2 end, float t)
@@ -211,6 +224,7 @@ public class Car : MonoBehaviour
     {
         gridController = FindObjectOfType<GridController>();
         nameText = GetComponentInChildren<Text>();
+        backgroundSprite = GetComponent<SpriteRenderer>();
     }
 
     private void Start()

@@ -385,7 +385,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellConnection: 01000101
-  roadInfo: {fileID: 0}
+  roadInfo: {fileID: 11400000, guid: fb271a4e329299741a9e834ecc1ad841, type: 2}
 --- !u!1 &4861504857570544106
 GameObject:
   m_ObjectHideFlags: 0

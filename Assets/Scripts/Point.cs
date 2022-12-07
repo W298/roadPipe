@@ -14,24 +14,32 @@ public class Point : Cell
 {
     public PointType pointType;
     public ThemeName pointThemeName;
+    public float carSpawnDelay = 5;
+    public float carSpawnBias = 1;
     public Theme pointTheme => GameManager.instance.GetTheme(pointThemeName);
     public Point otherPoint;
     public GameObject carPrefab;
 
     private int carCount = 0;
 
-    private IEnumerator SpawnCar()
+    private IEnumerator StartSpawnCar()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(carSpawnBias);
+        StartCoroutine(SpawnCarLoop());
+    }
+
+    private IEnumerator SpawnCarLoop()
+    {
         var car = Instantiate(carPrefab, transform.position, Quaternion.identity).GetComponent<Car>();
+        car.ApplyTheme(pointTheme.color);
         car.name = carCount.ToString();
         carCount++;
         car.startPoint = this;
         car.destinationPoint = otherPoint;
         car.StartMove();
 
-        yield return new WaitForSeconds(2f);
-        StartCoroutine(SpawnCar());
+        yield return new WaitForSeconds(carSpawnDelay);
+        StartCoroutine(SpawnCarLoop());
     }
 
     private void ApplyTheme()
@@ -42,6 +50,6 @@ public class Point : Cell
     private void Start()
     {
         ApplyTheme();
-        if (pointType == PointType.START) StartCoroutine(SpawnCar());
+        if (pointType == PointType.START) StartCoroutine(StartSpawnCar());
     }
 }
