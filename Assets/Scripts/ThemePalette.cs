@@ -19,5 +19,9 @@ public class Theme
 public enum ThemeName
 {
     YELLOW,
-    BLUE
+    BLUE,
+    RED,
+    GREEN,
+    PURPLE,
+    WHITE,
 }

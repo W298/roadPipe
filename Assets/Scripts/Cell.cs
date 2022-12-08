@@ -7,15 +7,15 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    protected Grid grid;
-    private GridController gridController;
+    private bool isRotating = false;
+    private Quaternion desireRot;
 
     public bool[] cellConnection = new bool[]
     {
         false, false, false, false
     };
 
-    public Vector3Int cellPosition => grid.WorldToCell(transform.position);
+    public Vector3Int cellPosition => GridController.grid.WorldToCell(transform.position);
 
     public Cell[] GetAdjacentCell()
     {
@@ -24,7 +24,7 @@ public class Cell : MonoBehaviour
 
         for (int i = 0; i < offsetAry.Length; i++)
         {
-            var cell = gridController.GetCell(cellPosition + (Vector3Int)offsetAry[i]);
+            var cell = GridController.instance.GetCell(cellPosition + (Vector3Int)offsetAry[i]);
             cellList.Add(cell);
         }
 
@@ -43,7 +43,7 @@ public class Cell : MonoBehaviour
 
         for (int i = 0; i < offsetAry.Length; i++)
         {
-            var cell = gridController.GetCell(cellPosition + (Vector3Int)offsetAry[i]);
+            var cell = GridController.instance.GetCell(cellPosition + (Vector3Int)offsetAry[i]);
             if (cell != null && cell == target)
             {
                 direction = i;
@@ -87,13 +87,19 @@ public class Cell : MonoBehaviour
         var carAry = FindObjectsOfType<Car>();
         if (carAry.Any(car => car.currentRoad == this)) return;
 
-        transform.Rotate(new Vector3(0, 0, 1), 90);
+        StartRotate();
         RotateConnection();
+
+        foreach (var point in GridController.instance.pointAry)
+        {
+            point.OnRotate();
+        }
+
         foreach (var car in carAry)
         {
             car.OnRotate();
         }
-        gridController.OnRotate();
+        GridController.instance.OnRotate();
     }
 
     public void RotateConnection()
@@ -106,9 +112,35 @@ public class Cell : MonoBehaviour
         cellConnection[0] = lastValue;
     }
 
-    protected void Awake()
+    private void StartRotate()
     {
-        grid = transform.parent.GetComponent<Grid>();
-        gridController = transform.parent.GetComponent<GridController>();
+        if (isRotating)
+        {
+            var step = (int)desireRot.eulerAngles.z / 90;
+            step++;
+
+            desireRot = Quaternion.Euler(0, 0, step * 90);
+        }
+        else
+        {
+            isRotating = true;
+            var step = (int)transform.rotation.eulerAngles.z / 90;
+            step++;
+
+            desireRot = Quaternion.Euler(0, 0, step * 90);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (!isRotating) return;
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, desireRot, Time.deltaTime * 10);
+
+        if (MathF.Abs(transform.rotation.eulerAngles.z - desireRot.eulerAngles.z) <= 0.1f)
+        {
+            transform.rotation = desireRot;
+            isRotating = false;
+        }
     }
 }

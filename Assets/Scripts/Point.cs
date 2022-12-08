@@ -20,7 +20,21 @@ public class Point : Cell
     public Point otherPoint;
     public GameObject carPrefab;
 
-    private int carCount = 0;
+    public int carCount = 5;
+    public int arrivedCarCount = 0;
+    public List<Sprite> pointSpriteList;
+
+    private SpriteRenderer spriteRenderer;
+
+    public void ParkCar()
+    {
+        arrivedCarCount++;
+    }
+
+    public void OnRotate()
+    {
+        ApplySprite();
+    }
 
     private IEnumerator StartSpawnCar()
     {
@@ -32,12 +46,13 @@ public class Point : Cell
     {
         var car = Instantiate(carPrefab, transform.position, Quaternion.identity).GetComponent<Car>();
         car.ApplyTheme(pointTheme.color);
-        car.name = carCount.ToString();
-        carCount++;
         car.startPoint = this;
         car.destinationPoint = otherPoint;
         car.StartMove();
 
+        carCount--;
+
+        if (carCount < 0) yield break;
         yield return new WaitForSeconds(carSpawnDelay);
         StartCoroutine(SpawnCarLoop());
     }
@@ -47,9 +62,31 @@ public class Point : Cell
         transform.GetChild(0).GetComponent<SpriteRenderer>().color = pointTheme.color;
     }
 
+    private void ApplySprite()
+    {
+        var connectedCell = GetConnectedCell();
+        int attachedIndex = 4;
+        for (int i = 0; i < connectedCell.Length; i++)
+        {
+            if (connectedCell[i] is Road)
+            {
+                attachedIndex = i;
+                break;
+            }
+        }
+
+        spriteRenderer.sprite = pointSpriteList[attachedIndex];
+    }
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     private void Start()
     {
         ApplyTheme();
+        ApplySprite();
         if (pointType == PointType.START) StartCoroutine(StartSpawnCar());
     }
 }

@@ -19,8 +19,34 @@ public class PathFindResult
 
 public class GridController : MonoBehaviour
 {
-    private Grid grid;
+    private static GridController _instance;
+    public static GridController instance
+    {
+        get
+        {
+            if (_instance == null) _instance = FindObjectOfType<GridController>();
+            return _instance;
+        }
+    }
+
+    private static Grid _grid;
+    public static Grid grid
+    {
+        get
+        {
+            if (_grid == null) _grid = instance.GetComponent<Grid>();
+            return _grid;
+        }
+    }
+
+    public Point[] pointAry;
+
     private List<PathFindResult> pathFindResultList = new List<PathFindResult>();
+
+    public Vector3 GetCellPosition(Vector3 worldPosition)
+    {
+        return grid.GetCellCenterWorld(grid.WorldToCell(worldPosition));
+    }
 
     public Cell GetCell(Vector3 worldPosition)
     {
@@ -94,7 +120,7 @@ public class GridController : MonoBehaviour
             if (adjRoadAdjIndex != -1 && (path.Count == 0 || targetAdjIndex == path.Last().attachIndex || targetAdjIndex == 100))
             {
                 var newPath = path.ToList();
-                newPath.Add(new PathInfo(adjRoad, -1));
+                newPath.Add(new PathInfo(adjRoad, adjRoadAdjIndex));
                 PathFindRecursive(ref shortestPath, newPath, adjRoad, destination);
             }
         }
@@ -102,12 +128,11 @@ public class GridController : MonoBehaviour
 
     private void Awake()
     {
-        grid = GetComponent<Grid>();
+        pointAry = GetComponentsInChildren<Point>();
     }
 
     private void Start()
     {
-        var pointAry = GetComponentsInChildren<Point>();
         foreach (var startPoint in pointAry.Where(point => point.pointType == PointType.START))
         {
             var endPoint = pointAry.FirstOrDefault(point => point.pointType == PointType.END && point.pointTheme.name == startPoint.pointTheme.name);

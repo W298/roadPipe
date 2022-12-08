@@ -161,7 +161,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a7944ef02baa28d4fb5777a42f5e7789, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 27b3015c4f544ac4bb3fa904f0881d41, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -186,10 +186,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellConnection: 01010101
   pointType: 0
-  pointIndex: 0
+  pointThemeName: 0
+  carSpawnDelay: 5
+  carSpawnBias: 1
   otherPoint: {fileID: 0}
-  attachPoint: []
   carPrefab: {fileID: 5795605259494003383, guid: 6e2ef4463f6ee2141b0300270f77416d, type: 3}
+  carCount: 5
+  arrivedCarCount: 0
+  pointSpriteList:
+  - {fileID: 21300000, guid: a7944ef02baa28d4fb5777a42f5e7789, type: 3}
+  - {fileID: 21300000, guid: 996f506c836f83d4ca0c20112e45b4ef, type: 3}
+  - {fileID: 21300000, guid: 961dbfdf68e8e5c41b6c373f26557106, type: 3}
+  - {fileID: 21300000, guid: 07c3ada2c43ccc148935c5b4591e3f65, type: 3}
+  - {fileID: 21300000, guid: 27b3015c4f544ac4bb3fa904f0881d41, type: 3}
 --- !u!1 &7230583384140889347
 GameObject:
   m_ObjectHideFlags: 0

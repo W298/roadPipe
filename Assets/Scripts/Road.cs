@@ -20,6 +20,8 @@ public class Road : Cell
     public RoadInfo roadInfo;
     public WayPoint[] wayPointAry;
 
+    public List<Car> carList = new List<Car>();
+
     public int GetWayPointIndexFrom(int from)
     {
         return roadInfo.directionAry[(int)transform.rotation.eulerAngles.z / 90].data.FindIndex(d => d.from == from);

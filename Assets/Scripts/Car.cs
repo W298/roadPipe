@@ -17,16 +17,27 @@ public class Car : MonoBehaviour
     public Point startPoint;
     public Point destinationPoint;
 
-    public Road currentRoad;
+    private Road _currentRoad;
+    public Road currentRoad
+    {
+        get => _currentRoad;
+
+        set
+        {
+            _currentRoad?.carList.Remove(this);
+            _currentRoad = value;
+            _currentRoad?.carList.Add(this);
+        }
+    }
 
     private float t = 0;
-    private GridController gridController;
+    private float speed = 0.015f;
     private Text nameText;
     private SpriteRenderer backgroundSprite;
 
     public bool PathFind(Cell start, Cell destination)
     {
-        var newPath = gridController.RequestPath(start, destination);
+        var newPath = GridController.instance.RequestPath(start, destination);
         hasValidPath = newPath.Count != 0;
 
         if (!hasValidPath)
@@ -116,10 +127,27 @@ public class Car : MonoBehaviour
         return true;
     }
 
+    public void PauseMove()
+    {
+        speed = 0;
+    }
+
+    public void SlowDown()
+    {
+        speed = 0.005f;
+    }
+
+    public void ResetSpeed()
+    {
+        speed = 0.015f;
+    }
+
     private IEnumerator Move()
     {
+        ResetSpeed();
         currentRoad = path[currentRoadIndex].road;
-        currentRoadRunningIndex = path[currentRoadIndex].attachIndex == -1 ? currentRoadRunningIndex : path[currentRoadIndex].attachIndex;
+        currentRoadRunningIndex = path[currentRoadIndex].attachIndex;
+        if (currentRoadRunningIndex == -1) yield return new WaitForFixedUpdate();
 
         if (currentRoad.wayPointAry[currentRoadRunningIndex].points.Length == 2)
         {
@@ -129,7 +157,7 @@ public class Car : MonoBehaviour
             while (t < 1)
             {
                 transform.position = Linear(currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position, currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position, t);
-                t += 0.01f;
+                t += speed;
 
                 yield return new WaitForFixedUpdate();
             }
@@ -159,7 +187,7 @@ public class Car : MonoBehaviour
                         break;
                 }
 
-                t += 0.005f / Vector2.Distance(a, b) * 0.85f;
+                t += (speed / 3) / Vector2.Distance(a, b) * 0.85f;
                 yield return new WaitForFixedUpdate();
             }
         }
@@ -197,11 +225,13 @@ public class Car : MonoBehaviour
     private void ParkCar()
     {
         arrived = true;
+        destinationPoint.ParkCar();
         Destroy(gameObject);
     }
 
     private void DestroyCar()
     {
+        currentRoad = null;
         Destroy(gameObject);
     }
 
@@ -222,13 +252,7 @@ public class Car : MonoBehaviour
 
     private void Awake()
     {
-        gridController = FindObjectOfType<GridController>();
         nameText = GetComponentInChildren<Text>();
         backgroundSprite = GetComponent<SpriteRenderer>();
-    }
-
-    private void Start()
-    {
-        nameText.text = gameObject.name;
     }
 }
