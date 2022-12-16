@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEditor.Progress;
 
 public enum InputMode
 {
     ROTATE,
-    SINGLE_ITEM,
-    RANGE_ITEM
+    SLOW,
+    STOP
 }
 
 public abstract class Item : MonoBehaviour
@@ -62,17 +63,17 @@ public class SlowItem : Item
     public IEnumerator Routine()
     {
         road = GetComponent<Road>();
-
-        var prefabObject = Instantiate(prefab, transform.position + (Vector3)offset, Quaternion.identity);
-
         active = true;
+
+        GetComponent<SpriteRenderer>().sprite = road.slowSprite;
 
         if (duration < 0) yield break;
         yield return new WaitForSeconds(duration);
         active = false;
 
+        GetComponent<SpriteRenderer>().sprite = road.originalSprite;
+
         road.carList.ForEach(car => car.ResetSpeed());
-        Destroy(prefabObject);
         Destroy(this);
     }
 
@@ -87,6 +88,7 @@ public class InputManager : MonoBehaviour
 {
     public GameObject selectorPrefab;
     public GameObject stopPrefab;
+    public GameObject slowPrefab;
 
     private GameObject _selector = null;
 
@@ -116,6 +118,24 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    private GameObject _slow = null;
+    private GameObject slow
+    {
+        get
+        {
+            if (_slow == null)
+            {
+                _slow = Instantiate(slowPrefab, Vector3.zero, Quaternion.identity);
+
+                foreach (var sprite in _slow.GetComponentsInChildren<SpriteRenderer>())
+                {
+                    sprite.color = new Color(1, 1, 1, 0.5f);
+                }
+            }
+            return _slow;
+        }
+    }
+
     private InputMode inputMode;
 
     private void Update()
@@ -124,7 +144,11 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            inputMode = InputMode.SINGLE_ITEM;
+            inputMode = InputMode.SLOW;
+        }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            inputMode = InputMode.STOP;
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -141,10 +165,15 @@ public class InputManager : MonoBehaviour
                     case InputMode.ROTATE:
                         cell.Rotate();
                         break;
-                    case InputMode.SINGLE_ITEM:
+                    case InputMode.SLOW:
                         var item = cell.gameObject.AddComponent<SlowItem>();
-                        item.Init(-1f, new Vector2(0, 0.5f), stopPrefab);
+                        item.Init(-1f, Vector2.zero, slowPrefab);
                         StartCoroutine(item.Routine());
+                        break;
+                    case InputMode.STOP:
+                        var stopItem = cell.gameObject.AddComponent<StopItem>();
+                        stopItem.Init(5f, Vector2.zero, stopPrefab);
+                        StartCoroutine(stopItem.Routine());
                         break;
                 }
             }
@@ -152,6 +181,7 @@ public class InputManager : MonoBehaviour
 
         selector.SetActive(false);
         stop.SetActive(false);
+        slow.SetActive(false);
 
         var spawnPos = GridController.instance.GetCellPosition(worldPos);
         switch (inputMode)
@@ -160,11 +190,14 @@ public class InputManager : MonoBehaviour
                 selector.SetActive(true);
                 selector.transform.position = spawnPos;
                 break;
-            case InputMode.SINGLE_ITEM:
+            case InputMode.SLOW:
+                slow.SetActive(true);
+                slow.transform.position = spawnPos;
+                break;
+            case InputMode.STOP:
                 stop.SetActive(true);
-                stop.transform.position = spawnPos + new Vector3(0, 0.5f, 0);
+                stop.transform.position = spawnPos;
                 break;
         }
-        
     }
 }

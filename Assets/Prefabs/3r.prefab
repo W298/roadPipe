@@ -386,6 +386,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellConnection: 01000101
   roadInfo: {fileID: 11400000, guid: fb271a4e329299741a9e834ecc1ad841, type: 2}
+  originalSprite: {fileID: 21300000, guid: 7395eb901a813b743892b967a618a3b9, type: 3}
+  slowSprite: {fileID: 21300000, guid: cd45bb3db7045504a9d67f419ae2d516, type: 3}
+  carList: []
 --- !u!1 &4861504857570544106
 GameObject:
   m_ObjectHideFlags: 0

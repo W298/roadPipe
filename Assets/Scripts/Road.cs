@@ -19,7 +19,8 @@ public class Road : Cell
 {
     public RoadInfo roadInfo;
     public WayPoint[] wayPointAry;
-
+    public Sprite originalSprite;
+    public Sprite slowSprite;
     public List<Car> carList = new List<Car>();
 
     public int GetWayPointIndexFrom(int from)
