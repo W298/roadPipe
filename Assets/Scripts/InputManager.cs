@@ -12,83 +12,11 @@ public enum InputMode
     STOP
 }
 
-public abstract class Item : MonoBehaviour
-{
-    public float duration = 5f;
-    public Vector2 offset = Vector2.zero;
-    public GameObject prefab;
-
-    public void Init(float duration, Vector2 offset, GameObject prefab)
-    {
-        this.duration = duration;
-        this.offset = offset;
-        this.prefab = prefab;
-    }
-}
-
-public class StopItem : Item
-{
-    private Road road;
-    private bool active = false;
-
-    public IEnumerator Routine()
-    {
-        road = GetComponent<Road>();
-
-        var prefabObject = Instantiate(prefab, transform.position + (Vector3)offset, Quaternion.identity);
-
-        active = true;
-        
-        if (duration < 0) yield break;
-        yield return new WaitForSeconds(duration);
-        active = false;
-
-        road.carList.ForEach(car => car.ResetSpeed());
-        Destroy(prefabObject);
-        Destroy(this);
-    }
-
-    private void Update()
-    {
-        if (!active) return;
-        road.carList.ForEach(car => car.PauseMove());
-    }
-}
-
-public class SlowItem : Item
-{
-    private Road road;
-    private bool active = false;
-
-    public IEnumerator Routine()
-    {
-        road = GetComponent<Road>();
-        active = true;
-
-        GetComponent<SpriteRenderer>().sprite = road.slowSprite;
-
-        if (duration < 0) yield break;
-        yield return new WaitForSeconds(duration);
-        active = false;
-
-        GetComponent<SpriteRenderer>().sprite = road.originalSprite;
-
-        road.carList.ForEach(car => car.ResetSpeed());
-        Destroy(this);
-    }
-
-    private void Update()
-    {
-        if (!active) return;
-        road.carList.ForEach(car => car.SlowDown());
-    }
-}
-
 public class InputManager : MonoBehaviour
 {
     public GameObject selectorPrefab;
-    public GameObject stopPrefab;
-    public GameObject slowPrefab;
+    public GameObject stopCursorPrefab;
+    public GameObject slowCursorPrefab;
 
     private GameObject _selector = null;
 
@@ -104,44 +32,42 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    private GameObject _stop = null;
-    private GameObject stop
+    private GameObject _stopCursor = null;
+    private GameObject stopCursor
     {
         get
         {
-            if (_stop == null)
+            if (_stopCursor == null)
             {
-                _stop = Instantiate(stopPrefab, Vector3.zero, Quaternion.identity);
-                _stop.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
+                _stopCursor = Instantiate(stopCursorPrefab, Vector3.zero, Quaternion.identity);
+                _stopCursor.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
             }
-            return _stop;
+            return _stopCursor;
         }
     }
 
-    private GameObject _slow = null;
-    private GameObject slow
+    private GameObject _slowCursor = null;
+    private GameObject slowCursor
     {
         get
         {
-            if (_slow == null)
+            if (_slowCursor == null)
             {
-                _slow = Instantiate(slowPrefab, Vector3.zero, Quaternion.identity);
+                _slowCursor = Instantiate(slowCursorPrefab, Vector3.zero, Quaternion.identity);
 
-                foreach (var sprite in _slow.GetComponentsInChildren<SpriteRenderer>())
+                foreach (var sprite in _slowCursor.GetComponentsInChildren<SpriteRenderer>())
                 {
                     sprite.color = new Color(1, 1, 1, 0.5f);
                 }
             }
-            return _slow;
+            return _slowCursor;
         }
     }
 
     private InputMode inputMode;
 
-    private void Update()
+    private void ChangeInputMode()
     {
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
         if (Input.GetKeyDown(KeyCode.S))
         {
             inputMode = InputMode.SLOW;
@@ -154,34 +80,37 @@ public class InputManager : MonoBehaviour
         {
             inputMode = InputMode.ROTATE;
         }
+    }
 
-        if (Input.GetMouseButtonDown(0))
+    private void HandleInput(Cell cell)
+    {
+        switch (inputMode)
         {
-            var cell = GridController.instance.GetCell(worldPos);
-            if (cell != null && cell is Road)
-            {
-                switch (inputMode)
-                {
-                    case InputMode.ROTATE:
-                        cell.Rotate();
-                        break;
-                    case InputMode.SLOW:
-                        var item = cell.gameObject.AddComponent<SlowItem>();
-                        item.Init(-1f, Vector2.zero, slowPrefab);
-                        StartCoroutine(item.Routine());
-                        break;
-                    case InputMode.STOP:
-                        var stopItem = cell.gameObject.AddComponent<StopItem>();
-                        stopItem.Init(5f, Vector2.zero, stopPrefab);
-                        StartCoroutine(stopItem.Routine());
-                        break;
-                }
-            }
+            case InputMode.ROTATE:
+                cell.Rotate();
+                break;
+            case InputMode.SLOW:
+                if (GameManager.instance.inventoryManager.GetCount(ItemType.SLOW) == 0) break;
+                GameManager.instance.inventoryManager.UseItem(ItemType.SLOW);
+                var slowEffecter = cell.gameObject.AddComponent<SlowEffecter>();
+                slowEffecter.Init(-1f, Vector2.zero, slowCursorPrefab);
+                StartCoroutine(slowEffecter.Routine());
+                break;
+            case InputMode.STOP:
+                if (GameManager.instance.inventoryManager.GetCount(ItemType.STOP) == 0) break;
+                GameManager.instance.inventoryManager.UseItem(ItemType.STOP);
+                var stopEffecter = cell.gameObject.AddComponent<StopEffecter>();
+                stopEffecter.Init(5f, Vector2.zero, stopCursorPrefab);
+                StartCoroutine(stopEffecter.Routine());
+                break;
         }
+    }
 
+    private void SetCursor(Vector3 worldPos)
+    {
         selector.SetActive(false);
-        stop.SetActive(false);
-        slow.SetActive(false);
+        stopCursor.SetActive(false);
+        slowCursor.SetActive(false);
 
         var spawnPos = GridController.instance.GetCellPosition(worldPos);
         switch (inputMode)
@@ -191,13 +120,28 @@ public class InputManager : MonoBehaviour
                 selector.transform.position = spawnPos;
                 break;
             case InputMode.SLOW:
-                slow.SetActive(true);
-                slow.transform.position = spawnPos;
+                slowCursor.SetActive(true);
+                slowCursor.transform.position = spawnPos;
                 break;
             case InputMode.STOP:
-                stop.SetActive(true);
-                stop.transform.position = spawnPos;
+                stopCursor.SetActive(true);
+                stopCursor.transform.position = spawnPos;
                 break;
         }
+    }
+
+    private void Update()
+    {
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        ChangeInputMode();
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            var cell = GridController.instance.GetCell(worldPos);
+            if (cell != null && cell is Road) HandleInput(cell);
+        }
+
+        SetCursor(worldPos);
     }
 }
