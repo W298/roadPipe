@@ -14,6 +14,8 @@ public abstract class Effecter : MonoBehaviour
         this.offset = offset;
         this.prefab = prefab;
     }
+
+    public abstract IEnumerator Routine();
 }
 
 public class StopEffecter : Effecter
@@ -21,7 +23,7 @@ public class StopEffecter : Effecter
     private Road road;
     private bool active = false;
 
-    public IEnumerator Routine()
+    public override IEnumerator Routine()
     {
         road = GetComponent<Road>();
 
@@ -50,7 +52,7 @@ public class SlowEffecter : Effecter
     private Road road;
     private bool active = false;
 
-    public IEnumerator Routine()
+    public override IEnumerator Routine()
     {
         road = GetComponent<Road>();
         active = true;

@@ -90,35 +90,33 @@ public class InputManager : MonoBehaviour
                 cell.Rotate();
                 break;
             case InputMode.SLOW:
-                if (GameManager.instance.inventoryManager.GetCount(ItemType.SLOW) == 0) break;
-                GameManager.instance.inventoryManager.UseItem(ItemType.SLOW);
-                var slowEffecter = cell.gameObject.AddComponent<SlowEffecter>();
-                slowEffecter.Init(-1f, Vector2.zero, slowCursorPrefab);
-                StartCoroutine(slowEffecter.Routine());
+                SpawnEffecter<SlowEffecter>(ItemType.SLOW, cell, -1f, slowCursorPrefab);
                 break;
             case InputMode.STOP:
-                if (GameManager.instance.inventoryManager.GetCount(ItemType.STOP) == 0) break;
-                GameManager.instance.inventoryManager.UseItem(ItemType.STOP);
-                var stopEffecter = cell.gameObject.AddComponent<StopEffecter>();
-                stopEffecter.Init(5f, Vector2.zero, stopCursorPrefab);
-                StartCoroutine(stopEffecter.Routine());
+                SpawnEffecter<StopEffecter>(ItemType.STOP, cell, 5f, stopCursorPrefab);
                 break;
         }
     }
 
+    private bool SpawnEffecter<T>(ItemType type, Cell cell, float duration, GameObject prefab) where T : Effecter
+    {
+        if (GameManager.instance.inventoryManager.GetCount(type) == 0) return false;
+        GameManager.instance.inventoryManager.UseItem(type);
+        var effecter = cell.gameObject.AddComponent<T>();
+        effecter.Init(duration, Vector2.zero, prefab);
+        StartCoroutine(effecter.Routine());
+        return true;
+    }
+
     private void SetCursor(Vector3 worldPos)
     {
-        selector.SetActive(false);
         stopCursor.SetActive(false);
         slowCursor.SetActive(false);
 
         var spawnPos = GridController.instance.GetCellPosition(worldPos);
+        selector.transform.position = spawnPos;
         switch (inputMode)
         {
-            case InputMode.ROTATE:
-                selector.SetActive(true);
-                selector.transform.position = spawnPos;
-                break;
             case InputMode.SLOW:
                 slowCursor.SetActive(true);
                 slowCursor.transform.position = spawnPos;

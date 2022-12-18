@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3015962084086914467, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: pointType
       value: 1
@@ -63,9 +67,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: PointEnd
       objectReference: {fileID: 0}
+    - target: {fileID: 6632780932320841325, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7566320448026498831, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7820496989861838570, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
+      propertyPath: m_Color.a
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
