@@ -193,6 +193,10 @@ public class Car : MonoBehaviour
         }
 
         var needNextMove = SetNextRoad();
+        if (needNextMove && currentRoad.GetComponent<StopEffecter>() != null && path[currentRoadIndex].road.GetComponent<StopEffecter>() != null)
+        {
+            yield return new WaitForSeconds(5f);
+        }
         if (needNextMove) StartCoroutine(Move());
     }
 

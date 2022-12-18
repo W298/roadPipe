@@ -451,7 +451,7 @@ MonoBehaviour:
   cellConnection: 01010101
   roadInfo: {fileID: 11400000, guid: 68e96077a732f0b419286f347ebe1097, type: 2}
   originalSprite: {fileID: 21300000, guid: 87bb20d9c438c504d9219edcc53bd28c, type: 3}
-  slowSprite: {fileID: 21300000, guid: cd45bb3db7045504a9d67f419ae2d516, type: 3}
+  slowSprite: {fileID: 21300000, guid: 5c02a3d1137321e47b723438fc7609de, type: 3}
   carList: []
 --- !u!1 &4861504857570544106
 GameObject:

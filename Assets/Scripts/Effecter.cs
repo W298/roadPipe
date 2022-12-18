@@ -8,7 +8,7 @@ public abstract class Effecter : MonoBehaviour
     public Vector2 offset = Vector2.zero;
     public GameObject prefab;
 
-    public void Init(float duration, Vector2 offset, GameObject prefab)
+    public void Init(float duration, Vector2 offset, GameObject prefab = null)
     {
         this.duration = duration;
         this.offset = offset;
@@ -16,6 +16,15 @@ public abstract class Effecter : MonoBehaviour
     }
 
     public abstract IEnumerator Routine();
+}
+
+public class TimerEffecter : Effecter
+{
+    public override IEnumerator Routine()
+    {
+        yield return new WaitForSeconds(duration);
+        Destroy(gameObject);
+    }
 }
 
 public class StopEffecter : Effecter
@@ -27,23 +36,20 @@ public class StopEffecter : Effecter
     {
         road = GetComponent<Road>();
 
-        var prefabObject = Instantiate(prefab, transform.position + (Vector3)offset, Quaternion.identity);
-
         active = true;
 
         if (duration < 0) yield break;
         yield return new WaitForSeconds(duration);
         active = false;
 
-        road.carList.ForEach(car => car.ResetSpeed());
-        Destroy(prefabObject);
+        // road.carList.ForEach(car => car.ResetSpeed());
         Destroy(this);
     }
 
     private void Update()
     {
         if (!active) return;
-        road.carList.ForEach(car => car.PauseMove());
+        // road.carList.ForEach(car => car.PauseMove());
     }
 }
 

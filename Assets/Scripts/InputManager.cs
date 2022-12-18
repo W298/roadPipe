@@ -1,7 +1,10 @@
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.UIElements;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -82,50 +85,51 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    private void HandleInput(Cell cell)
+    private Tuple<Road, Road, Vector3, Quaternion> SetCursor(Vector3 worldPos)
     {
-        switch (inputMode)
-        {
-            case InputMode.ROTATE:
-                cell.Rotate();
-                break;
-            case InputMode.SLOW:
-                SpawnEffecter<SlowEffecter>(ItemType.SLOW, cell, -1f, slowCursorPrefab);
-                break;
-            case InputMode.STOP:
-                SpawnEffecter<StopEffecter>(ItemType.STOP, cell, 5f, stopCursorPrefab);
-                break;
-        }
-    }
-
-    private bool SpawnEffecter<T>(ItemType type, Cell cell, float duration, GameObject prefab) where T : Effecter
-    {
-        if (GameManager.instance.inventoryManager.GetCount(type) == 0) return false;
-        GameManager.instance.inventoryManager.UseItem(type);
-        var effecter = cell.gameObject.AddComponent<T>();
-        effecter.Init(duration, Vector2.zero, prefab);
-        StartCoroutine(effecter.Routine());
-        return true;
-    }
-
-    private void SetCursor(Vector3 worldPos)
-    {
+        selector.SetActive(false);
         stopCursor.SetActive(false);
         slowCursor.SetActive(false);
 
         var spawnPos = GridController.instance.GetCellPosition(worldPos);
-        selector.transform.position = spawnPos;
         switch (inputMode)
         {
             case InputMode.SLOW:
+                selector.SetActive(true);
+                selector.transform.position = spawnPos;
                 slowCursor.SetActive(true);
                 slowCursor.transform.position = spawnPos;
                 break;
             case InputMode.STOP:
                 stopCursor.SetActive(true);
-                stopCursor.transform.position = spawnPos;
+
+                var vX = (float)Math.Round(worldPos.x * 2, MidpointRounding.AwayFromZero) / 2;
+                var vY = (float)Math.Round(worldPos.y * 2, MidpointRounding.AwayFromZero) / 2;
+
+                var roundedPos = new Vector3(vX, vY, 0);
+                var targetCell = GridController.instance.GetCell(roundedPos);
+
+                var xOdd = (int)(vX / 0.5f) % 2 != 0;
+                var yOdd = (int)(vY / 0.5f) % 2 != 0;
+
+                if (xOdd == yOdd || targetCell == null) break;
+
+                var a = roundedPos + (xOdd ? new Vector3(0, 0.5f, 0) : new Vector3(0.5f, 0, 0));
+                var b = roundedPos + (xOdd ? new Vector3(0, -0.5f, 0) : new Vector3(-0.5f, 0, 0));
+
+                var aRoad = GridController.instance.GetCell(a) is Road ? GridController.instance.GetCell(a) as Road : null;
+                var bRoad = GridController.instance.GetCell(b) is Road ? GridController.instance.GetCell(b) as Road : null;
+
+                stopCursor.transform.rotation = xOdd ? Quaternion.Euler(0, 0, 90) : Quaternion.identity;
+                stopCursor.transform.position = roundedPos;
+                return new Tuple<Road, Road, Vector3, Quaternion>(aRoad, bRoad, roundedPos, stopCursor.transform.rotation);
+            default:
+                selector.SetActive(true);
+                selector.transform.position = spawnPos;
                 break;
         }
+
+        return new Tuple<Road, Road, Vector3, Quaternion>(null, null, Vector3.zero, Quaternion.identity);
     }
 
     private void Update()
@@ -133,13 +137,46 @@ public class InputManager : MonoBehaviour
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         ChangeInputMode();
+        var result = SetCursor(worldPos);
 
         if (Input.GetMouseButtonDown(0))
         {
             var cell = GridController.instance.GetCell(worldPos);
-            if (cell != null && cell is Road) HandleInput(cell);
-        }
+            switch (inputMode)
+            {
+                case InputMode.ROTATE:
+                    if (cell != null && cell is not Road) break;
+                    cell.Rotate();
+                    break;
+                case InputMode.SLOW:
+                    if (cell != null && cell is not Road) break;
+                    
+                    if (GameManager.instance.inventoryManager.GetCount(ItemType.SLOW) == 0) break;
+                    GameManager.instance.inventoryManager.UseItem(ItemType.SLOW);
+                    
+                    var slowEffecter = cell.gameObject.AddComponent<SlowEffecter>();
+                    slowEffecter.Init(-1f, Vector2.zero);
+                    StartCoroutine(slowEffecter.Routine());
+                    break;
+                case InputMode.STOP:
+                    if (GameManager.instance.inventoryManager.GetCount(ItemType.STOP) == 0) break;
+                    GameManager.instance.inventoryManager.UseItem(ItemType.STOP);
 
-        SetCursor(worldPos);
+                    var blockPrefab = Instantiate(stopCursorPrefab, result.Item3, result.Item4);
+                    var timerEffecter = blockPrefab.AddComponent<TimerEffecter>();
+                    timerEffecter.Init(5f, Vector2.zero);
+                    StartCoroutine(timerEffecter.Routine());
+
+                    var effectRoadList = new Road[] { result.Item1, result.Item2 };
+                    foreach (var road in effectRoadList)
+                    {
+                        var stopEffecter = road.AddComponent<StopEffecter>();
+                        stopEffecter.Init(5f, Vector2.zero);
+                        StartCoroutine(stopEffecter.Routine());
+                    }
+
+                    break;
+            }
+        }
     }
 }
