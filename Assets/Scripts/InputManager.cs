@@ -145,11 +145,11 @@ public class InputManager : MonoBehaviour
             switch (inputMode)
             {
                 case InputMode.ROTATE:
-                    if (cell != null && cell is not Road) break;
+                    if (cell == null || cell is not Road) break;
                     cell.Rotate();
                     break;
                 case InputMode.SLOW:
-                    if (cell != null && cell is not Road) break;
+                    if (cell == null || cell is not Road) break;
                     
                     if (GameManager.instance.inventoryManager.GetCount(ItemType.SLOW) == 0) break;
                     GameManager.instance.inventoryManager.UseItem(ItemType.SLOW);
@@ -170,6 +170,7 @@ public class InputManager : MonoBehaviour
                     var effectRoadList = new Road[] { result.Item1, result.Item2 };
                     foreach (var road in effectRoadList)
                     {
+                        if (road == null) continue;
                         var stopEffecter = road.AddComponent<StopEffecter>();
                         stopEffecter.Init(5f, Vector2.zero);
                         StartCoroutine(stopEffecter.Routine());

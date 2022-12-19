@@ -27,29 +27,20 @@ public class TimerEffecter : Effecter
     }
 }
 
-public class StopEffecter : Effecter
+public class StopEffecter : TimerEffecter
 {
-    private Road road;
-    private bool active = false;
+    public float remainTime;
 
     public override IEnumerator Routine()
     {
-        road = GetComponent<Road>();
+        remainTime = duration;
+        while (remainTime > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            remainTime -= 1f;
+        }
 
-        active = true;
-
-        if (duration < 0) yield break;
-        yield return new WaitForSeconds(duration);
-        active = false;
-
-        // road.carList.ForEach(car => car.ResetSpeed());
         Destroy(this);
-    }
-
-    private void Update()
-    {
-        if (!active) return;
-        // road.carList.ForEach(car => car.PauseMove());
     }
 }
 

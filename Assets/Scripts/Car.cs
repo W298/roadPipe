@@ -6,6 +6,26 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum NextRoadStatusType
+{
+    VALID,
+    ADJACENT,
+    DISCONNECTED,
+    DESTINATION
+}
+
+public struct NextRoadStatus
+{
+    public NextRoadStatusType statusType;
+    public PathInfo roadInfo;
+
+    public NextRoadStatus(NextRoadStatusType statusType, PathInfo roadInfo = null)
+    {
+        this.statusType = statusType;
+        this.roadInfo = roadInfo;
+    }
+}
+
 public class Car : MonoBehaviour
 {
     [Serialize] public List<PathInfo> path = new List<PathInfo>();
@@ -32,7 +52,6 @@ public class Car : MonoBehaviour
 
     private float t = 0;
     private float speed = 0.015f;
-    private Text nameText;
     private SpriteRenderer backgroundSprite;
 
     public bool PathFind(Cell start, Cell destination)
@@ -99,37 +118,19 @@ public class Car : MonoBehaviour
         return !arrived && !destinationPoint.isConnected(currentRoad);
     }
 
-    private bool SetNextRoad()
+    private NextRoadStatus CheckNextValid()
     {
-        currentRoadIndex++;
-        t = 0;
-
         if (!hasValidPath)
         {
             var next = FindConnectedRoad(currentRoad);
-            if (next.road == null || next.attachIndex == -1)
-            {
-                DestroyCar();
-                return false;
-            }
+            if (next.road == null || next.attachIndex == -1) return new NextRoadStatus(NextRoadStatusType.DISCONNECTED);
 
-            path.Add(next);
-        }
-        else
-        {
-            if (currentRoadIndex >= path.Count)
-            {
-                ParkCar();
-                return false;
-            }
+            if (next.road == destinationPoint) return new NextRoadStatus(NextRoadStatusType.DESTINATION);
+            return new NextRoadStatus(NextRoadStatusType.ADJACENT, next);
         }
 
-        return true;
-    }
-
-    public void PauseMove()
-    {
-        speed = 0;
+        if (currentRoadIndex + 1 >= path.Count) return new NextRoadStatus(NextRoadStatusType.DESTINATION);
+        return new NextRoadStatus(NextRoadStatusType.VALID);
     }
 
     public void SlowDown()
@@ -192,11 +193,44 @@ public class Car : MonoBehaviour
             }
         }
 
-        var needNextMove = SetNextRoad();
-        if (needNextMove && currentRoad.GetComponent<StopEffecter>() != null && path[currentRoadIndex].road.GetComponent<StopEffecter>() != null)
+        var nextRoadStatus = CheckNextValid();
+        var needNextMove = nextRoadStatus.statusType <= NextRoadStatusType.ADJACENT;
+        var hasStopEffecter = currentRoad.GetComponent<StopEffecter>() != null;
+        if (nextRoadStatus.statusType == NextRoadStatusType.ADJACENT)
         {
-            yield return new WaitForSeconds(5f);
+            hasStopEffecter = hasStopEffecter && nextRoadStatus.roadInfo.road.GetComponent<StopEffecter>() != null;
         }
+        else if (nextRoadStatus.statusType == NextRoadStatusType.VALID)
+        {
+            hasStopEffecter = hasStopEffecter && path[currentRoadIndex + 1].road.GetComponent<StopEffecter>() != null;
+        }
+
+        if (needNextMove && hasStopEffecter)
+        {
+            while (currentRoad.GetComponent<StopEffecter>() != null && currentRoad.GetComponent<StopEffecter>().remainTime > 0)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            nextRoadStatus = CheckNextValid();
+        }
+
+        switch (nextRoadStatus.statusType)
+        {
+            case NextRoadStatusType.ADJACENT:
+                path.Add(nextRoadStatus.roadInfo);
+                break;
+            case NextRoadStatusType.DISCONNECTED:
+                DestroyCar();
+                break;
+            case NextRoadStatusType.DESTINATION:
+                ParkCar();
+                break;
+        }
+
+        currentRoadIndex++;
+        t = 0;
+
         if (needNextMove) StartCoroutine(Move());
     }
 
@@ -256,7 +290,6 @@ public class Car : MonoBehaviour
 
     private void Awake()
     {
-        nameText = GetComponentInChildren<Text>();
         backgroundSprite = GetComponent<SpriteRenderer>();
     }
 }
