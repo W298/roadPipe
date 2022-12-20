@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Effecter : MonoBehaviour
+public abstract class Effector : MonoBehaviour
 {
     public float duration = 5f;
     public Vector2 offset = Vector2.zero;
@@ -18,7 +18,7 @@ public abstract class Effecter : MonoBehaviour
     public abstract IEnumerator Routine();
 }
 
-public class TimerEffecter : Effecter
+public class TimerEffector : Effector
 {
     public override IEnumerator Routine()
     {
@@ -27,7 +27,7 @@ public class TimerEffecter : Effecter
     }
 }
 
-public class StopEffecter : TimerEffecter
+public class StopEffector : TimerEffector
 {
     public float remainTime;
 
@@ -44,7 +44,7 @@ public class StopEffecter : TimerEffecter
     }
 }
 
-public class SlowEffecter : Effecter
+public class SlowEffector : Effector
 {
     private Road road;
     private bool active = false;

@@ -154,26 +154,26 @@ public class InputManager : MonoBehaviour
                     if (GameManager.instance.inventoryManager.GetCount(ItemType.SLOW) == 0) break;
                     GameManager.instance.inventoryManager.UseItem(ItemType.SLOW);
                     
-                    var slowEffecter = cell.gameObject.AddComponent<SlowEffecter>();
-                    slowEffecter.Init(-1f, Vector2.zero);
-                    StartCoroutine(slowEffecter.Routine());
+                    var slowEffector = cell.gameObject.AddComponent<SlowEffector>();
+                    slowEffector.Init(-1f, Vector2.zero);
+                    StartCoroutine(slowEffector.Routine());
                     break;
                 case InputMode.STOP:
                     if (GameManager.instance.inventoryManager.GetCount(ItemType.STOP) == 0) break;
                     GameManager.instance.inventoryManager.UseItem(ItemType.STOP);
 
                     var blockPrefab = Instantiate(stopCursorPrefab, result.Item3, result.Item4);
-                    var timerEffecter = blockPrefab.AddComponent<TimerEffecter>();
-                    timerEffecter.Init(5f, Vector2.zero);
-                    StartCoroutine(timerEffecter.Routine());
+                    var timerEffector = blockPrefab.AddComponent<TimerEffector>();
+                    timerEffector.Init(5f, Vector2.zero);
+                    StartCoroutine(timerEffector.Routine());
 
                     var effectRoadList = new Road[] { result.Item1, result.Item2 };
                     foreach (var road in effectRoadList)
                     {
                         if (road == null) continue;
-                        var stopEffecter = road.AddComponent<StopEffecter>();
-                        stopEffecter.Init(5f, Vector2.zero);
-                        StartCoroutine(stopEffecter.Routine());
+                        var stopEffector = road.AddComponent<StopEffector>();
+                        stopEffector.Init(5f, Vector2.zero);
+                        StartCoroutine(stopEffector.Routine());
                     }
 
                     break;

@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum NextRoadStatusType
 {
@@ -89,7 +87,7 @@ public class Car : MonoBehaviour
             path.Add(next);
         }
 
-        StartCoroutine(Move());
+        StartCoroutine(MoveRoutine());
     }
 
     public void OnRotate()
@@ -120,19 +118,21 @@ public class Car : MonoBehaviour
         return !arrived && !destinationPoint.isConnected(currentRoad);
     }
 
-    private NextRoadStatus CheckNextValid()
+    private NextRoadStatus GetNextRoadStatus()
     {
-        if (!hasValidPath)
-        {
-            var next = FindConnectedRoad(currentRoad);
-            if (next.road == null || next.attachIndex == -1) return new NextRoadStatus(NextRoadStatusType.DISCONNECTED);
+        if (hasValidPath)
+            return currentRoadIndex + 1 >= path.Count
+                ? new NextRoadStatus(NextRoadStatusType.DESTINATION)
+                : new NextRoadStatus(NextRoadStatusType.VALID);
+        
+        var next = FindConnectedRoad(currentRoad);
+        if (next.road == null || next.attachIndex == -1)
+            return new NextRoadStatus(NextRoadStatusType.DISCONNECTED);
 
-            if (next.road == destinationPoint) return new NextRoadStatus(NextRoadStatusType.DESTINATION);
-            return new NextRoadStatus(NextRoadStatusType.ADJACENT, next);
-        }
-
-        if (currentRoadIndex + 1 >= path.Count) return new NextRoadStatus(NextRoadStatusType.DESTINATION);
-        return new NextRoadStatus(NextRoadStatusType.VALID);
+        return 
+            next.road == destinationPoint 
+                ? new NextRoadStatus(NextRoadStatusType.DESTINATION) 
+                : new NextRoadStatus(NextRoadStatusType.ADJACENT, next);
     }
 
     public void SlowDown()
@@ -145,80 +145,91 @@ public class Car : MonoBehaviour
         speed = 0.015f;
     }
 
-    private IEnumerator Move()
+    private bool CheckStopEffector()
     {
-        ResetSpeed();
+        var nextRoadStatus = GetNextRoadStatus();
+        var hasStopEffector = currentRoad.GetComponent<StopEffector>() != null;
 
-        currentRoad = path[currentRoadIndex].road;
-        currentRoadRunningIndex = path[currentRoadIndex].attachIndex;
+        if (nextRoadStatus.statusType > NextRoadStatusType.ADJACENT) return hasStopEffector;
+        
+        var nextRoad = nextRoadStatus.statusType == NextRoadStatusType.ADJACENT
+            ? nextRoadStatus.roadInfo.road
+            : path[currentRoadIndex + 1].road;
+        return hasStopEffector && nextRoad.GetComponent<StopEffector>() != null;
+    }
 
-        if (currentRoadRunningIndex == -1) yield return new WaitForFixedUpdate();
-
-        var points = currentRoad.wayPointAry[currentRoadRunningIndex].points;
-
-        if (points.Length == 2)
+    private IEnumerator WaitForStopEffector()
+    {
+        while (currentRoad.GetComponent<StopEffector>()?.remainTime > 0)
         {
-            var dir = points[1].transform.position - points[0].transform.position;
-            transform.right = dir;
-            while (t < 1)
-            {
-                transform.position = Linear(points[0].transform.position, points[1].transform.position, t);
-                t += speed;
+            yield return new WaitForFixedUpdate();
+        }
+    }
 
-                yield return new WaitForFixedUpdate();
-            }
+    private IEnumerator LinearMove(GameObject[] points)
+    {
+        transform.position = Linear(points[0].transform.position, points[1].transform.position, t);
+        t += speed;
+
+        var dir = points[1].transform.position - points[0].transform.position;
+        transform.right = dir;
+
+        yield return new WaitForFixedUpdate();
+    }
+
+    private IEnumerator BezierMove(GameObject[] points)
+    {
+        var a = points[0].transform.position + (points[1].transform.position - points[0].transform.position).normalized * 0.15f;
+        var b = points[2].transform.position + (points[1].transform.position - points[2].transform.position).normalized * 0.15f;
+        var originalPosition = transform.position;
+        switch (t)
+        {
+            case <= 0.2f:
+                transform.position = Linear(points[0].transform.position, a, t * 5);
+                break;
+            case >= 0.8f:
+                transform.position = Linear(b, points[2].transform.position, (t - 0.8f) * 5);
+                break;
+            default:
+                transform.position = Bezier(a, points[1].transform.position, b, (t - 0.2f) * (10f / 6f));
+                transform.right = transform.position - originalPosition;
+                break;
+        }
+
+        t += (speed / 3) / Vector2.Distance(a, b) * 0.85f;
+        yield return new WaitForFixedUpdate();
+    }
+
+    private bool InitCurrentRoad()
+    {
+        currentRoad = path[currentRoadIndex].road;
+        // currentRoadRunningIndex = path[currentRoadIndex].attachIndex;
+        currentRoadRunningIndex = currentRoad.GetWayPointIndexFrom(currentRoad.GetRelativePosition(currentRoadIndex - 1 >= 0 ? path[currentRoadIndex - 1].road : startPoint));
+
+        return currentRoadRunningIndex != -1;
+    }
+
+    private IEnumerator MoveAlongWayPoints()
+    {
+        var points = currentRoad.wayPointAry[currentRoadRunningIndex].points;
+        if (points.Length <= 2)
+        {
+            while (t < 0.8f) yield return LinearMove(points);
+            if (CheckStopEffector()) yield return WaitForStopEffector();
+            while (t < 1) yield return LinearMove(points);
         }
         else
         {
-            var start = points[0].transform.position;
-            var control = points[1].transform.position;
-            var end = points[2].transform.position;
-            var a = start + (control - start).normalized * 0.15f;
-            var b = end + (control - end).normalized * 0.15f;
-
-            while (t < 1)
-            {
-                var originalPosition = transform.position;
-                switch (t)
-                {
-                    case <= 0.2f:
-                        transform.position = Linear(start, a, t * 5);
-                        break;
-                    case >= 0.8f:
-                        transform.position = Linear(b, end, (t - 0.8f) * 5);
-                        break;
-                    default:
-                        transform.position = Bezier(a, control, b, (t - 0.2f) * (10f / 6f));
-                        transform.right = transform.position - originalPosition;
-                        break;
-                }
-
-                t += (speed / 3) / Vector2.Distance(a, b) * 0.85f;
-                yield return new WaitForFixedUpdate();
-            }
+            while (t < 0.8f) yield return BezierMove(points);
+            if (CheckStopEffector()) yield return WaitForStopEffector();
+            while (t < 1) yield return BezierMove(points);
         }
+    }
 
-        var nextRoadStatus = CheckNextValid();
+    private bool PrepareNextRoad()
+    {
+        var nextRoadStatus = GetNextRoadStatus();
         var needNextMove = nextRoadStatus.statusType <= NextRoadStatusType.ADJACENT;
-        var hasStopEffecter = currentRoad.GetComponent<StopEffecter>() != null;
-        if (nextRoadStatus.statusType == NextRoadStatusType.ADJACENT)
-        {
-            hasStopEffecter = hasStopEffecter && nextRoadStatus.roadInfo.road.GetComponent<StopEffecter>() != null;
-        }
-        else if (nextRoadStatus.statusType == NextRoadStatusType.VALID)
-        {
-            hasStopEffecter = hasStopEffecter && path[currentRoadIndex + 1].road.GetComponent<StopEffecter>() != null;
-        }
-
-        if (needNextMove && hasStopEffecter)
-        {
-            while (currentRoad.GetComponent<StopEffecter>() != null && currentRoad.GetComponent<StopEffecter>().remainTime > 0)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-
-            nextRoadStatus = CheckNextValid();
-        }
 
         switch (nextRoadStatus.statusType)
         {
@@ -236,22 +247,38 @@ public class Car : MonoBehaviour
         currentRoadIndex++;
         t = 0;
 
-        if (needNextMove) StartCoroutine(Move());
+        return needNextMove;
+    }
+
+    private IEnumerator MoveRoutine()
+    {
+        ResetSpeed();
+
+        var validRunningIndex = InitCurrentRoad();
+        if (!validRunningIndex) yield return new WaitForFixedUpdate();
+
+        yield return MoveAlongWayPoints();
+
+        var needNextMove = PrepareNextRoad();
+        if (needNextMove) StartCoroutine(MoveRoutine());
     }
 
     private PathInfo FindConnectedRoad(Cell targetCell)
     {
         Road nextRoad = null;
-        int nextIndex = -1;
+        var nextIndex = -1;
 
         foreach (var adjCell in targetCell.GetConnectedCellNotNull())
         {
-            if (path.Exists(p => p.road == adjCell) && path.FindIndex(p => p.road == adjCell) < currentRoadIndex) continue;
+            var existInPath = path.Exists(p => p.road == adjCell);
+            var existAfterCurrentRoad = path.FindIndex(p => p.road == adjCell) < currentRoadIndex;
+            
+            if (existInPath && existAfterCurrentRoad) continue;
+            if (adjCell is not Road adjRoad) continue;
 
-            if (adjCell is not Road) continue;
-            var adjRoad = adjCell as Road;
-
-            var targetAdjIndex = targetCell is Road targetRoad ? targetRoad.GetWayPointIndexTo(targetRoad.GetRelativePosition(adjRoad)) : currentRoadRunningIndex;
+            var targetAdjIndex = targetCell is Road targetRoad 
+                ? targetRoad.GetWayPointIndexTo(targetRoad.GetRelativePosition(adjRoad)) 
+                : currentRoadRunningIndex;
             var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetRelativePosition(targetCell));
 
             if (adjRoadAdjIndex != -1 && targetAdjIndex == currentRoadRunningIndex)
