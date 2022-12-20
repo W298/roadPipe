@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -28,7 +29,7 @@ public class Car : MonoBehaviour
 {
     [Serialize] public List<PathInfo> path = new List<PathInfo>();
     public int currentRoadIndex = 0;
-    public int currentRoadRunningIndex = 0;
+    public int currentRoadRunningIndex = -1;
     public bool hasValidPath = false;
     public bool arrived = false;
 
@@ -52,9 +53,9 @@ public class Car : MonoBehaviour
     private float speed = 0.015f;
     private SpriteRenderer backgroundSprite;
 
-    public bool PathFind(Cell start, Cell destination)
+    public bool PathFind(int startRunningIndex, Cell start, Cell destination)
     {
-        var newPath = GridController.instance.RequestPath(start, destination);
+        var newPath = GridController.instance.RequestPath(startRunningIndex, start, destination);
         hasValidPath = newPath.Count != 0;
 
         if (!hasValidPath)
@@ -77,7 +78,7 @@ public class Car : MonoBehaviour
 
     public void StartMove()
     {
-        PathFind(startPoint, destinationPoint);
+        PathFind(-100, startPoint, destinationPoint);
 
         if (!hasValidPath)
         {
@@ -93,7 +94,7 @@ public class Car : MonoBehaviour
     public void OnRotate()
     {
         if (!NeedPathFind()) return;
-        PathFind(currentRoad != null ? currentRoad : startPoint, destinationPoint);
+        PathFind(currentRoadRunningIndex, currentRoad != null ? currentRoad : startPoint, destinationPoint);
     }
 
     private void OverridePath(List<PathInfo> newPath)
@@ -203,8 +204,7 @@ public class Car : MonoBehaviour
     private bool InitCurrentRoad()
     {
         currentRoad = path[currentRoadIndex].road;
-        // currentRoadRunningIndex = path[currentRoadIndex].attachIndex;
-        currentRoadRunningIndex = currentRoad.GetWayPointIndexFrom(currentRoad.GetRelativePosition(currentRoadIndex - 1 >= 0 ? path[currentRoadIndex - 1].road : startPoint));
+        currentRoadRunningIndex = path[currentRoadIndex].attachIndex;
 
         return currentRoadRunningIndex != -1;
     }
@@ -270,10 +270,11 @@ public class Car : MonoBehaviour
 
         foreach (var adjCell in targetCell.GetConnectedCellNotNull())
         {
-            var existInPath = path.Exists(p => p.road == adjCell);
-            var existAfterCurrentRoad = path.FindIndex(p => p.road == adjCell) < currentRoadIndex;
+            //var existInPath = path.Exists(p => p.road == adjCell);
+            //var existAfterCurrentRoad = path.FindIndex(p => p.road == adjCell) < currentRoadIndex;
             
-            if (existInPath && existAfterCurrentRoad) continue;
+            //if (existInPath && existAfterCurrentRoad) continue;
+            if (currentRoadIndex >= 1 && path[currentRoadIndex - 1].road == adjCell) continue;
             if (adjCell is not Road adjRoad) continue;
 
             var targetAdjIndex = targetCell is Road targetRoad 
