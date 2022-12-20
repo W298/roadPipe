@@ -187,8 +187,9 @@ public class Point : Cell
         }
     }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         spriteRenderer = GetComponent<SpriteRenderer>();
         biasBackground = GetComponentInChildren<Image>();
         spawnDelayText = GetComponentsInChildren<Text>()[0];

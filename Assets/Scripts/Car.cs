@@ -61,6 +61,7 @@ public class Car : MonoBehaviour
 
         if (!hasValidPath)
         {
+            ClearAfterPath();
             return false;
         }
 
@@ -104,6 +105,7 @@ public class Car : MonoBehaviour
 
     private void ClearAfterPath()
     {
+        if (path.Count < currentRoadIndex + 1) return;
         path.RemoveRange(currentRoadIndex + 1, path.Count - currentRoadIndex - 1);
     }
 
@@ -146,18 +148,21 @@ public class Car : MonoBehaviour
     private IEnumerator Move()
     {
         ResetSpeed();
+
         currentRoad = path[currentRoadIndex].road;
         currentRoadRunningIndex = path[currentRoadIndex].attachIndex;
+
         if (currentRoadRunningIndex == -1) yield return new WaitForFixedUpdate();
 
-        if (currentRoad.wayPointAry[currentRoadRunningIndex].points.Length == 2)
+        var points = currentRoad.wayPointAry[currentRoadRunningIndex].points;
+
+        if (points.Length == 2)
         {
-            var dir = currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position -
-                      currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position;
+            var dir = points[1].transform.position - points[0].transform.position;
             transform.right = dir;
             while (t < 1)
             {
-                transform.position = Linear(currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position, currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position, t);
+                transform.position = Linear(points[0].transform.position, points[1].transform.position, t);
                 t += speed;
 
                 yield return new WaitForFixedUpdate();
@@ -165,9 +170,9 @@ public class Car : MonoBehaviour
         }
         else
         {
-            var start = currentRoad.wayPointAry[currentRoadRunningIndex].points[0].transform.position;
-            var control = currentRoad.wayPointAry[currentRoadRunningIndex].points[1].transform.position;
-            var end = currentRoad.wayPointAry[currentRoadRunningIndex].points[2].transform.position;
+            var start = points[0].transform.position;
+            var control = points[1].transform.position;
+            var end = points[2].transform.position;
             var a = start + (control - start).normalized * 0.15f;
             var b = end + (control - end).normalized * 0.15f;
 
@@ -246,8 +251,8 @@ public class Car : MonoBehaviour
             if (adjCell is not Road) continue;
             var adjRoad = adjCell as Road;
 
-            var targetAdjIndex = targetCell is Road targetRoad ? targetRoad.GetWayPointIndexTo(targetRoad.GetAttachedIndex(adjRoad)) : currentRoadRunningIndex;
-            var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetAttachedIndex(targetCell));
+            var targetAdjIndex = targetCell is Road targetRoad ? targetRoad.GetWayPointIndexTo(targetRoad.GetRelativePosition(adjRoad)) : currentRoadRunningIndex;
+            var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetRelativePosition(targetCell));
 
             if (adjRoadAdjIndex != -1 && targetAdjIndex == currentRoadRunningIndex)
             {

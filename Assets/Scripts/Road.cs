@@ -25,12 +25,12 @@ public class Road : Cell
 
     public int GetWayPointIndexFrom(int from)
     {
-        return roadInfo.directionAry[(int)transform.rotation.eulerAngles.z / 90].data.FindIndex(d => d.from == from);
+        return roadInfo.directionAry[rotation].data.FindIndex(d => d.from == from);
     }
 
     public int GetWayPointIndexTo(int to)
     {
-        return roadInfo.directionAry[(int)transform.rotation.eulerAngles.z / 90].data.FindIndex(d => d.to == to);
+        return roadInfo.directionAry[rotation].data.FindIndex(d => d.to == to);
     }
 
     private void SetWayPoint()
@@ -49,8 +49,9 @@ public class Road : Cell
         wayPointAry = wayPointList.ToArray();
     }
 
-    private void Start()
+    protected override void Awake()
     {
+        base.Awake();
         SetWayPoint();
     }
 }

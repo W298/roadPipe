@@ -23,6 +23,6 @@ public class PathInfo
 
     public void SetAttachIndex(Cell prev)
     {
-        attachIndex = road.GetWayPointIndexFrom(road.GetAttachedIndex(prev));
+        attachIndex = road.GetWayPointIndexFrom(road.GetRelativePosition(prev));
     }
 }

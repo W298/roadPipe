@@ -1465,22 +1465,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[0]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[1]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[2]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[3]
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5602325467909995228, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
       propertyPath: m_Name
       value: 1r (5)
@@ -1605,14 +1589,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 4422224677258663145, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
-      propertyPath: cellConnection.Array.data[0]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4422224677258663145, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
-      propertyPath: cellConnection.Array.data[2]
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4422224677258663148, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
       propertyPath: m_Name
       value: 2r (11)
@@ -1799,22 +1775,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[0]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[1]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[2]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[3]
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5602325467909995228, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
       propertyPath: m_Name
       value: 1r (10)
@@ -2056,22 +2016,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[0]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[1]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[2]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[3]
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5602325467909995228, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
       propertyPath: m_Name
       value: 1r (8)
@@ -2258,22 +2202,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[0]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[1]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[2]
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5602325467909995225, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
-      propertyPath: cellConnection.Array.data[3]
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5602325467909995228, guid: 60f5292ffd254414a9db2ad734ec9ef5, type: 3}
       propertyPath: m_Name
       value: 1r (7)
@@ -2398,14 +2326,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 4422224677258663145, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
-      propertyPath: cellConnection.Array.data[0]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4422224677258663145, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
-      propertyPath: cellConnection.Array.data[2]
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4422224677258663148, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
       propertyPath: m_Name
       value: 2r (12)
@@ -2789,14 +2709,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
-    - target: {fileID: 4422224677258663145, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
-      propertyPath: cellConnection.Array.data[1]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4422224677258663145, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
-      propertyPath: cellConnection.Array.data[3]
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4422224677258663148, guid: f3ef95699e1ee4e40a3f8e2cedac051a, type: 3}
       propertyPath: m_Name
       value: 2r (10)

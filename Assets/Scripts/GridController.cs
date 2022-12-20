@@ -78,15 +78,17 @@ public class GridController : MonoBehaviour
     public List<PathInfo> RequestPath(Cell start, Cell destination)
     {
         var pathFindResult = pathFindResultList.FirstOrDefault(res => res.start == start && res.destination == destination);
-        return pathFindResult == null ? CaculatePath(start, destination) : pathFindResult.path;
+        return pathFindResult == null ? CalculatePath(start, destination) : pathFindResult.path;
     }
 
-    private List<PathInfo> CaculatePath(Cell start, Cell destination)
+    private List<PathInfo> CalculatePath(Cell start, Cell destination)
     {
         var shortestPath = new List<PathInfo>();
         var currentPath = new List<PathInfo>();
+        
         PathFindRecursive(ref shortestPath, currentPath, start, destination);
-        if (shortestPath.Count <= 0) return shortestPath;
+        
+        if (shortestPath.Count <= 0) return new List<PathInfo>();
 
         pathFindResultList.Add(new PathFindResult(shortestPath, start, destination));
 
@@ -113,9 +115,9 @@ public class GridController : MonoBehaviour
             if (path.Exists(p => p.road == cell)) continue;
 
             var targetAdjIndex = start is Road startRoad
-                ? startRoad.GetWayPointIndexTo(startRoad.GetAttachedIndex(adjRoad))
+                ? startRoad.GetWayPointIndexTo(startRoad.GetRelativePosition(adjRoad))
                 : 100;
-            var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetAttachedIndex(start));
+            var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetRelativePosition(start));
 
             if (adjRoadAdjIndex != -1 && (path.Count == 0 || targetAdjIndex == path.Last().attachIndex || targetAdjIndex == 100))
             {

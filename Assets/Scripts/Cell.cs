@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
+    public int rotation = 0;
     private bool isRotating = false;
     private Quaternion desireRot;
 
@@ -36,7 +37,7 @@ public class Cell : MonoBehaviour
         return Array.FindAll(GetAdjacentCell(), cell => cell != null);
     }
 
-    public int GetAttachedIndex(Cell target)
+    public int GetRelativePosition(Cell target)
     {
         int direction = -1;
         var offsetAry = new Vector2Int[] { new(1, 0), new(0, 1), new(-1, 0), new(0, -1) };
@@ -58,7 +59,7 @@ public class Cell : MonoBehaviour
     {
         return GetAdjacentCell().Select((cell, index) =>
         {
-            if (cell != null && cellConnection[index] && isConnected(cell, index)) return cell;
+            if (cell != null && isConnected(cell, index)) return cell;
             return null;
         }).ToArray();
     }
@@ -70,22 +71,26 @@ public class Cell : MonoBehaviour
 
     public bool isConnected(Cell target)
     {
-        int direction = GetAttachedIndex(target);
+        int direction = GetRelativePosition(target);
         return direction != -1 && isConnected(target, direction);
     }
 
     public bool isConnected(Cell target, int direction)
     {
-        direction += 2;
-        direction %= 4;
+        var targetDirection = direction;
+        targetDirection += 2;
+        targetDirection %= 4;
 
-        return target.cellConnection[direction];
+        return cellConnection[direction] && target.cellConnection[targetDirection];
     }
 
     public void Rotate()
     {
         var carAry = FindObjectsOfType<Car>();
         if (carAry.Any(car => car.currentRoad == this)) return;
+
+        rotation += 1;
+        rotation %= 4;
 
         StartRotate();
         RotateConnection();
@@ -141,6 +146,15 @@ public class Cell : MonoBehaviour
         {
             transform.rotation = desireRot;
             isRotating = false;
+        }
+    }
+
+    protected virtual void Awake()
+    {
+        rotation = (int)(transform.rotation.eulerAngles.z / 90);
+        for (int i = 0; i < rotation; i++)
+        {
+            RotateConnection();
         }
     }
 }
