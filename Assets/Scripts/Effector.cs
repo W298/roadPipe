@@ -54,13 +54,15 @@ public class SlowEffector : Effector
         road = GetComponent<Road>();
         active = true;
 
-        GetComponent<SpriteRenderer>().sprite = road.slowSprite;
+        // GetComponent<SpriteRenderer>().sprite = road.slowSprite;
+        transform.GetChild(transform.childCount - 1).GetChild(0).gameObject.SetActive(true);
 
         if (duration < 0) yield break;
         yield return new WaitForSeconds(duration);
         active = false;
 
-        GetComponent<SpriteRenderer>().sprite = road.originalSprite;
+        // GetComponent<SpriteRenderer>().sprite = road.originalSprite;
+        transform.GetChild(transform.childCount - 1).GetChild(0).gameObject.SetActive(false);
 
         road.carList.ForEach(car => car.ResetSpeed());
         Destroy(this);

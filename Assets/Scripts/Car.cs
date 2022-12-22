@@ -49,12 +49,17 @@ public class Car : MonoBehaviour
         }
     }
 
-    private float t = 0;
+    public float t = 0;
     private float speed = 0.015f;
     private SpriteRenderer backgroundSprite;
 
     public bool PathFind(int startRunningIndex, Cell start, Cell destination)
     {
+        foreach (var pathInfo in path.Where((info, index) => currentRoadIndex >= 0 && index >= currentRoadIndex))
+        {
+            pathInfo.road.ResetPathRender(pathInfo.attachIndex);
+        }
+
         var newPath = GridController.instance.RequestPath(startRunningIndex, start, destination);
         hasValidPath = newPath.Count != 0;
 
@@ -71,6 +76,11 @@ public class Car : MonoBehaviour
         else
         {
             ReplacePath(newPath);
+        }
+
+        foreach (var pathInfo in path.Where((info, index) => index >= currentRoadIndex))
+        {
+            pathInfo.road.InitPathRender(this, pathInfo.attachIndex);
         }
 
         return true;
@@ -175,6 +185,8 @@ public class Car : MonoBehaviour
         var dir = points[1].transform.position - points[0].transform.position;
         transform.right = dir;
 
+        if (hasValidPath) currentRoad.UpdatePathRender(currentRoadRunningIndex, Mathf.Clamp(t * 1.1f, 0, 1));
+
         yield return new WaitForFixedUpdate();
     }
 
@@ -198,6 +210,9 @@ public class Car : MonoBehaviour
         }
 
         t += (speed / 3) / Vector2.Distance(a, b) * 0.85f;
+
+        if (hasValidPath) currentRoad.UpdatePathRender(currentRoadRunningIndex, Mathf.Clamp(t * 1.1f, 0, 1));
+
         yield return new WaitForFixedUpdate();
     }
 
@@ -270,10 +285,6 @@ public class Car : MonoBehaviour
 
         foreach (var adjCell in targetCell.GetConnectedCellNotNull())
         {
-            //var existInPath = path.Exists(p => p.road == adjCell);
-            //var existAfterCurrentRoad = path.FindIndex(p => p.road == adjCell) < currentRoadIndex;
-            
-            //if (existInPath && existAfterCurrentRoad) continue;
             if (currentRoadIndex >= 1 && path[currentRoadIndex - 1].road == adjCell) continue;
             if (adjCell is not Road adjRoad) continue;
 

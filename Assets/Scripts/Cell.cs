@@ -135,10 +135,8 @@ public class Cell : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    protected virtual void RotationUpdate()
     {
-        if (!isRotating) return;
-
         transform.rotation = Quaternion.Lerp(transform.rotation, desireRot, Time.deltaTime * 10);
 
         if (MathF.Abs(transform.rotation.eulerAngles.z - desireRot.eulerAngles.z) <= 0.1f)
@@ -146,6 +144,12 @@ public class Cell : MonoBehaviour
             transform.rotation = desireRot;
             isRotating = false;
         }
+    }
+
+    private void FixedUpdate()
+    {
+        if (!isRotating) return;
+        RotationUpdate();
     }
 
     protected virtual void Awake()

@@ -42,3 +42,27 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Road
+    uniqueID: 3004409813
+    locked: 0
+  - name: PathLine
+    uniqueID: 1365747785
+    locked: 0
+  - name: PathLine Mask
+    uniqueID: 3758610847
+    locked: 0
+  - name: Slow Overlay
+    uniqueID: 2627470683
+    locked: 0
+  - name: PathLine Upper
+    uniqueID: 1587760739
+    locked: 0
+  - name: PathLine Mask Upper
+    uniqueID: 2520326771
+    locked: 0
+  - name: Car
+    uniqueID: 3400404481
+    locked: 0
+  - name: Selector
+    uniqueID: 3152028479
+    locked: 0
