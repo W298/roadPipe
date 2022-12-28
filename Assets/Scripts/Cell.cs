@@ -146,7 +146,7 @@ public class Cell : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (!isRotating) return;
         RotationUpdate();

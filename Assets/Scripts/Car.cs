@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum NextRoadStatusType
 {
@@ -36,6 +37,9 @@ public class Car : MonoBehaviour
     public Point startPoint;
     public Point destinationPoint;
 
+    public GameObject crashParticleSystem;
+
+    [SerializeField]
     private Road _currentRoad;
     public Road currentRoad
     {
@@ -52,6 +56,8 @@ public class Car : MonoBehaviour
     public float t = 0;
     private float speed = 0.015f;
     private SpriteRenderer backgroundSprite;
+    private GameObject skullUI;
+    private Canvas canvas;
 
     public bool PathFind(int startRunningIndex, Cell start, Cell destination)
     {
@@ -179,10 +185,15 @@ public class Car : MonoBehaviour
 
     private IEnumerator LinearMove(GameObject[] points)
     {
-        transform.position = Linear(points[0].transform.position, points[1].transform.position, t);
+        yield return LinearMove(points.Select(point => point.transform.position).ToArray());
+    }
+
+    private IEnumerator LinearMove(Vector3[] vectors)
+    {
+        transform.position = Linear(vectors[0], vectors[1], t);
         t += speed;
 
-        var dir = points[1].transform.position - points[0].transform.position;
+        var dir = vectors[1] - vectors[0];
         transform.right = dir;
 
         if (hasValidPath) currentRoad.UpdatePathRender(currentRoadRunningIndex, Mathf.Clamp(t * 1.1f, 0, 1));
@@ -192,19 +203,24 @@ public class Car : MonoBehaviour
 
     private IEnumerator BezierMove(GameObject[] points)
     {
-        var a = points[0].transform.position + (points[1].transform.position - points[0].transform.position).normalized * 0.15f;
-        var b = points[2].transform.position + (points[1].transform.position - points[2].transform.position).normalized * 0.15f;
+        yield return BezierMove(points.Select(point => point.transform.position).ToArray());
+    }
+
+    private IEnumerator BezierMove(Vector3[] vectors)
+    {
+        var a = vectors[0] + (vectors[1] - vectors[0]).normalized * 0.15f;
+        var b = vectors[2] + (vectors[1] - vectors[2]).normalized * 0.15f;
         var originalPosition = transform.position;
         switch (t)
         {
             case <= 0.2f:
-                transform.position = Linear(points[0].transform.position, a, t * 5);
+                transform.position = Linear(vectors[0], a, t * 5);
                 break;
             case >= 0.8f:
-                transform.position = Linear(b, points[2].transform.position, (t - 0.8f) * 5);
+                transform.position = Linear(b, vectors[2], (t - 0.8f) * 5);
                 break;
             default:
-                transform.position = Bezier(a, points[1].transform.position, b, (t - 0.2f) * (10f / 6f));
+                transform.position = Bezier(a, vectors[1], b, (t - 0.2f) * (10f / 6f));
                 transform.right = transform.position - originalPosition;
                 break;
         }
@@ -252,7 +268,7 @@ public class Car : MonoBehaviour
                 path.Add(nextRoadStatus.roadInfo);
                 break;
             case NextRoadStatusType.DISCONNECTED:
-                DestroyCar();
+                StartCoroutine(CrashCar());
                 break;
             case NextRoadStatusType.DESTINATION:
                 ParkCar();
@@ -311,15 +327,42 @@ public class Car : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void DestroyCar()
+    private IEnumerator CrashCar()
     {
+        var crashParticleGameObject = Instantiate(crashParticleSystem, Vector3.zero, Quaternion.Euler(-90, 0, 0));
+        crashParticleGameObject.transform.parent = transform;
+        crashParticleGameObject.transform.localPosition = new Vector3(0, 0, 60);
+        crashParticleGameObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        var duration = crashParticleGameObject.GetComponent<ParticleSystem>().main.duration;
+        
+        var lastPoints = currentRoad.wayPointAry[currentRoadRunningIndex].points;
+        var lastDirection = lastPoints[^1].transform.position - lastPoints[^2].transform.position;
+        
+        var vectors = new Vector3[]
+        {
+            lastPoints[^1].transform.position,
+            lastPoints[^1].transform.position + lastDirection * 0.2f
+        };
+
+        t = 0;
+        speed = 0.04f;
+        while (t < 1)
+        {
+            yield return LinearMove(vectors);
+        }
+
         currentRoad = null;
+        skullUI.SetActive(true);
+
+        yield return new WaitForSeconds(duration + 0.5f);
+
         Destroy(gameObject);
     }
 
     public void ApplyTheme(Color color)
     {
         backgroundSprite.color = color;
+        skullUI.GetComponent<Image>().color = color;
     }
 
     private static Vector2 Linear(Vector2 start, Vector2 end, float t)
@@ -332,8 +375,15 @@ public class Car : MonoBehaviour
         return (((1 - t) * (1 - t)) * start) + (2 * t * (1 - t) * control) + ((t * t) * end);
     }
 
+    private void Update()
+    {
+        canvas.transform.rotation = Quaternion.identity;
+    }
+
     private void Awake()
     {
         backgroundSprite = GetComponent<SpriteRenderer>();
+        canvas = GetComponentInChildren<Canvas>();
+        skullUI = canvas.transform.GetChild(0).gameObject;
     }
 }
