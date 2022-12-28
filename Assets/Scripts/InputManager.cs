@@ -107,18 +107,22 @@ public class InputManager : MonoBehaviour
                 var vY = (float)Math.Round(worldPos.y * 2, MidpointRounding.AwayFromZero) / 2;
 
                 var roundedPos = new Vector3(vX, vY, 0);
-                var targetCell = GridController.instance.GetCell(roundedPos);
 
                 var xOdd = (int)(vX / 0.5f) % 2 != 0;
                 var yOdd = (int)(vY / 0.5f) % 2 != 0;
 
-                if (xOdd == yOdd || targetCell == null) break;
+                if (xOdd == yOdd) break;
 
                 var a = roundedPos + (xOdd ? new Vector3(0, 0.5f, 0) : new Vector3(0.5f, 0, 0));
                 var b = roundedPos + (xOdd ? new Vector3(0, -0.5f, 0) : new Vector3(-0.5f, 0, 0));
 
                 var aRoad = GridController.instance.GetCell(a) is Road ? GridController.instance.GetCell(a) as Road : null;
                 var bRoad = GridController.instance.GetCell(b) is Road ? GridController.instance.GetCell(b) as Road : null;
+
+                if (aRoad == null && bRoad == null) break;
+
+                var cond = (aRoad != null && aRoad.cellConnection[xOdd ? 3 : 2]) || (bRoad != null && bRoad.cellConnection[xOdd ? 1 : 0]);
+                if (!cond) break;
 
                 stopCursor.transform.rotation = xOdd ? Quaternion.Euler(0, 0, 90) : Quaternion.identity;
                 stopCursor.transform.position = roundedPos;
