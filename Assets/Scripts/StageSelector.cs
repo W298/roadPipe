@@ -157,7 +157,7 @@ namespace StageSelectorUI
     }
 
     [Serializable]
-    public struct StageData
+    public class StageData
     {
         public string levelName;
         public int number;
@@ -201,6 +201,22 @@ namespace StageSelectorUI
         public void OpenStage(string levelName, int number)
         {
             data.data.Add(new StageData(levelName, number, 0));
+            data = data;
+        }
+
+        public void SaveScore(string levelName, int number, int score)
+        {
+            var target = data.data.Find(data => data.levelName == levelName && data.number == number);
+            if (target == null)
+            {
+                target = new StageData(levelName, number, score);
+                data.data.Add(target);
+            }
+            else
+            {
+                target.score = score;
+            }
+
             data = data;
         }
 

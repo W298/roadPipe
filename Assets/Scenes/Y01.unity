@@ -996,7 +996,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 247778361}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa2d199b8057b874584421d77a941a91, type: 3}
   m_Name: 
@@ -1500,6 +1500,10 @@ PrefabInstance:
     - target: {fileID: 3015962084086914467, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: m_Color.r
       value: 0.34117648
+      objectReference: {fileID: 0}
+    - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
+      propertyPath: carCount
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: carSpawnBias
@@ -7728,6 +7732,10 @@ PrefabInstance:
       value: 0.34117648
       objectReference: {fileID: 0}
     - target: {fileID: 4571876446922803710, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
+      propertyPath: carCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4571876446922803710, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
       propertyPath: pointThemeName
       value: 1
       objectReference: {fileID: 0}
@@ -11622,6 +11630,10 @@ PrefabInstance:
       value: 0.9490197
       objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
+      propertyPath: carCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: carSpawnBias
       value: 7
       objectReference: {fileID: 0}
@@ -11686,6 +11698,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
+    - target: {fileID: 4571876446922803710, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
+      propertyPath: carCount
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6263224104402417275, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
       propertyPath: m_RootOrder
       value: 1

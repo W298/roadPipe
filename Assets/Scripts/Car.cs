@@ -324,6 +324,8 @@ public class Car : MonoBehaviour
     {
         arrived = true;
         destinationPoint.ParkCar();
+
+        GameManager.instance.EndCar(this);
         Destroy(gameObject);
     }
 
@@ -356,6 +358,7 @@ public class Car : MonoBehaviour
 
         yield return new WaitForSeconds(duration + 0.5f);
 
+        GameManager.instance.EndCar(this);
         Destroy(gameObject);
     }
 

@@ -38,6 +38,7 @@ public class Point : Cell
     {
         arrivedCarCount++;
         UpdateCarDummy();
+        GameManager.instance.OnParkCar();
     }
 
     public void OnRotate()
@@ -72,6 +73,7 @@ public class Point : Cell
 
         if (carCount <= 0)
         {
+            GameManager.instance.lastCarList.Add(new CarArriveInfo(this, car));
             remainDelay = 0;
             UpdateSpawnDelayUI();
             yield break;
