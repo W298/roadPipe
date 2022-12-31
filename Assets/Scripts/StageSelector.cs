@@ -6,6 +6,9 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
+using System.Linq;
+using UnityEditor.SceneManagement;
 
 namespace StageSelectorUI
 {
@@ -25,6 +28,23 @@ namespace StageSelectorUI
             {
                 stageList.Add(new Stage(level, i));
             }
+
+            var load = StageClearDataManager.instance.data.data.Where(stageData => stageData.levelName == level).ToList();
+            if (load.Count <= 0) return;
+
+            load.Sort((a, b) => a.number.CompareTo(b.number));
+            if (load.Last().score >= 3 && load.Count < stageCount)
+            {
+                StageClearDataManager.instance.OpenStage(level, load.Count);
+                stageList.Find(stage => stage.number == load.Count).isLocked = false;
+            }
+
+            foreach (var data in load)
+            {
+                var targetStage = stageList.Find(stage => stage.level == data.levelName && stage.number == data.number);
+                targetStage.isLocked = false;
+                targetStage.score = data.score;
+            }
         }
     }
 
@@ -32,18 +52,20 @@ namespace StageSelectorUI
     {
         public string level;
         public int number;
-        public bool isCleared = false;
+        public bool isLocked = true;
+        public int score = 0;
         public StageGameObject stageGameObject = null;
 
         private UnityEvent<Stage> SelectEvent;
         private Color deselectColor;
         public StageContainer parent;
 
-        public Stage(string level, int number, bool isCleared = false)
+        public Stage(string level, int number, bool isLocked = true, int score = 0)
         {
             this.level = level;
             this.number = number;
-            this.isCleared = isCleared;
+            this.isLocked = isLocked;
+            this.score = score;
         }
 
         public void OnClick()
@@ -82,7 +104,18 @@ namespace StageSelectorUI
         public RectTransform rectTransform;
         public Text text;
         private EventTrigger trigger;
+        private ScoreIndicator scoreIndicator;
+        private GameObject lockIndicator;
         private Stage parent;
+
+        public void UpdateScore()
+        {
+            if (parent.isLocked) return;
+
+            lockIndicator.gameObject.SetActive(false);
+            scoreIndicator.gameObject.SetActive(true);
+            scoreIndicator.Render(parent.score);
+        }
 
         public StageGameObject(GameObject sceneGameObject, Stage parent)
         {
@@ -90,6 +123,8 @@ namespace StageSelectorUI
             rectTransform = sceneGameObject.GetComponent<RectTransform>();
             text = sceneGameObject.GetComponentInChildren<Text>();
             this.parent = parent;
+            scoreIndicator = sceneGameObject.GetComponentInChildren<ScoreIndicator>(true);
+            lockIndicator = sceneGameObject.transform.GetChild(2).gameObject;
             trigger = gameObject.GetComponent<EventTrigger>();
 
             var pointerEnter = new EventTrigger.Entry();
@@ -116,6 +151,78 @@ namespace StageSelectorUI
             trigger.triggers.Add(pointerEnter);
             trigger.triggers.Add(pointerExit);
             trigger.triggers.Add(pointerClick);
+
+            UpdateScore();
+        }
+    }
+
+    [Serializable]
+    public struct StageData
+    {
+        public string levelName;
+        public int number;
+        public int score;
+
+        public StageData(string levelName, int number, int score)
+        {
+            this.levelName = levelName;
+            this.number = number;
+            this.score = score;
+        }
+    }
+
+    [Serializable]
+    public class StageClearData
+    {
+        public List<StageData> data;
+
+        public StageClearData()
+        {
+            data = new List<StageData> { new StageData("Y", 0, 0) };
+        }
+    }
+
+    public class StageClearDataManager
+    {
+        private static StageClearDataManager _instance;
+        public static StageClearDataManager instance => _instance ??= new StageClearDataManager();
+
+        private StageClearData _data = null;
+        public StageClearData data
+        {
+            get => _data ??= LoadFromJSON();
+            set
+            {
+                _data = value;
+                SaveAsJSON(value);
+            }
+        }
+
+        public void OpenStage(string levelName, int number)
+        {
+            data.data.Add(new StageData(levelName, number, 0));
+            data = data;
+        }
+
+        private StageClearData LoadFromJSON()
+        {
+            var path = Path.Combine(Application.dataPath, "stageClearDB.json");
+
+            if (!File.Exists(path))
+            {
+                data = new StageClearData();
+                return data;
+            }
+
+            var json = File.ReadAllText(path);
+            return JsonUtility.FromJson<StageClearData>(json);
+        }
+
+        private void SaveAsJSON(StageClearData value)
+        {
+            var json = JsonUtility.ToJson(value, true);
+            var path = Path.Combine(Application.dataPath, "stageClearDB.json");
+            File.WriteAllText(path, json);
         }
     }
 
@@ -126,8 +233,49 @@ namespace StageSelectorUI
         public GameObject carDummyUIPrefab;
         public GameObject carDummyUI;
         public Stage selectedStage = null;
-        
+
         public UnityEvent<Stage> SelectEvent;
+
+        private IEnumerator routine = null;
+        private bool isMoving = false;
+
+        private IEnumerator OnSelectStage(Stage stage)
+        {
+            if (selectedStage == null || (selectedStage != null && stage.parent != selectedStage.parent))
+            {
+                if (carDummyUI != null) Destroy(carDummyUI);
+                carDummyUI = Instantiate(carDummyUIPrefab, Vector3.zero, Quaternion.identity);
+                carDummyUI.transform.SetParent(stage.parent.containerGameObject.transform);
+                carDummyUI.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, 180);
+                carDummyUI.GetComponent<Image>().color =
+                    stage.parent.containerGameObject.GetComponent<Image>().color;
+            }
+
+            isMoving = true;
+            selectedStage = stage;
+            yield return carDummyUI.GetComponent<CarDummyUIController>().MoveTo(stage);
+            isMoving = false;
+        }
+
+        public void StartGame()
+        {
+            if (selectedStage == null || isMoving) return;
+            SceneManager.LoadScene(selectedStage.level + (selectedStage.number + 1).ToString().PadLeft(2, '0'));
+        }
+
+        private void Awake()
+        {
+            SelectEvent.AddListener(stage =>
+            {
+                if (stage.isLocked) return;
+                if (routine != null)
+                {
+                    StopCoroutine(routine);
+                }
+                routine = OnSelectStage(stage);
+                StartCoroutine(routine);
+            });
+        }
 
         private void Start()
         {
@@ -140,25 +288,6 @@ namespace StageSelectorUI
                     stage.Init(go, stageContainer, SelectEvent, stageContainer.deselectColor, stageContainer);
                 });
             }
-
-            SelectEvent.AddListener((stage) =>
-            {
-                if (selectedStage == null || (selectedStage != null && stage.parent != selectedStage.parent))
-                {
-                    if (carDummyUI != null) Destroy(carDummyUI);
-                    carDummyUI = Instantiate(carDummyUIPrefab, Vector3.zero, Quaternion.identity);
-                    carDummyUI.transform.SetParent(stage.parent.containerGameObject.transform);
-                    carDummyUI.GetComponent<RectTransform>().rotation = Quaternion.Euler(0, 0, 180);
-                    carDummyUI.GetComponent<Image>().color =
-                        stage.parent.containerGameObject.GetComponent<Image>().color;
-                }
-
-                selectedStage = stage;
-                carDummyUI.GetComponent<RectTransform>().anchoredPosition =
-                    selectedStage.stageGameObject.rectTransform.anchoredPosition + new Vector2(300, -50);
-
-                SceneManager.LoadScene(stage.level + (stage.number + 1).ToString().PadLeft(2, '0'));
-            });
         }
     }
 };

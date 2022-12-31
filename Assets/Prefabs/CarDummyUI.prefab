@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1393782326756840511}
   - component: {fileID: 1393782326756840509}
   - component: {fileID: 1393782326756840510}
+  - component: {fileID: 660752375266228929}
   m_Layer: 5
   m_Name: CarDummyUI
   m_TagString: Untagged
@@ -78,6 +79,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &660752375266228929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393782326756840504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8e8c7e83c0948d47a1822128a9e960c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1393782327099258737
 GameObject:
   m_ObjectHideFlags: 0
