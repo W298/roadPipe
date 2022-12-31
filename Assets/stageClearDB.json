@@ -13,6 +13,11 @@
         {
             "levelName": "Y",
             "number": 2,
+            "score": 4
+        },
+        {
+            "levelName": "Y",
+            "number": 3,
             "score": 0
         }
     ]

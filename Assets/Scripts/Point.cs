@@ -28,6 +28,8 @@ public class Point : Cell
     public List<Sprite> pointSpriteList;
     public Sprite rotatedShadowSprite;
 
+    public bool isInfinite = false;
+
     private SpriteRenderer spriteRenderer;
     private Image biasBackground;
     private Text spawnDelayText;
@@ -73,10 +75,18 @@ public class Point : Cell
 
         if (carCount <= 0)
         {
-            GameManager.instance.lastCarList.Add(new CarArriveInfo(this, car));
-            remainDelay = 0;
-            UpdateSpawnDelayUI();
-            yield break;
+            if (isInfinite)
+            {
+                carCount = 6;
+                ResetCarDummy();
+            }
+            else
+            {
+                GameManager.instance.lastCarList.Add(new CarArriveInfo(this, car));
+                remainDelay = 0;
+                UpdateSpawnDelayUI();
+                yield break;
+            }
         }
 
         remainDelay = carSpawnDelay;
@@ -133,6 +143,14 @@ public class Point : Cell
     private void UpdateSpawnBiasUI()
     {
         spawnBiasText.text = remainBias.ToString();
+    }
+
+    private void ResetCarDummy()
+    {
+        foreach (var car in carDummyList)
+        {
+            ShowDummy(car);
+        }
     }
 
     private void UpdateCarDummy()
