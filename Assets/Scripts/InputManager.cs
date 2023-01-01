@@ -6,6 +6,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using static UnityEditor.Progress;
 
 public enum InputMode
@@ -69,21 +70,9 @@ public class InputManager : MonoBehaviour
 
     private InputMode inputMode;
 
-    private void ChangeInputMode()
-    {
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            inputMode = InputMode.SLOW;
-        }
-        else if (Input.GetKeyDown(KeyCode.T))
-        {
-            inputMode = InputMode.STOP;
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            inputMode = InputMode.ROTATE;
-        }
-    }
+    public InputAction slowItemAction;
+    public InputAction stopItemAction;
+    public InputAction rotateAction;
 
     private Tuple<Road, Road, Vector3, Quaternion> SetCursor(Vector3 worldPos)
     {
@@ -140,7 +129,6 @@ public class InputManager : MonoBehaviour
     {
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        ChangeInputMode();
         var result = SetCursor(worldPos);
 
         if (Input.GetMouseButtonDown(0))
@@ -183,5 +171,46 @@ public class InputManager : MonoBehaviour
                     break;
             }
         }
+    }
+
+    private void Awake()
+    {
+        var stopKey = stopItemAction.bindings[0].path[11..].ToUpper();
+        var slowKey = slowItemAction.bindings[0].path[11..].ToUpper();
+        PlayerUI.instance.UpdateKeyUI(stopKey, slowKey);
+    }
+
+    private void Start()
+    {
+        slowItemAction.Enable();
+        stopItemAction.Enable();
+        rotateAction.Enable();
+
+        slowItemAction.performed += context => inputMode = InputMode.SLOW;
+        stopItemAction.performed += context => inputMode = InputMode.STOP;
+        rotateAction.performed += context => inputMode = InputMode.ROTATE;
+    }
+
+    public void EnableCursor()
+    {
+        switch (inputMode)
+        {
+            case InputMode.ROTATE:
+                selector?.SetActive(true);
+                break;
+            case InputMode.SLOW:
+                slowCursor?.SetActive(true);
+                break;
+            case InputMode.STOP:
+                stopCursor?.SetActive(true);
+                break;
+        }
+    }
+
+    public void DisableCursor()
+    {
+        selector?.SetActive(false);
+        slowCursor?.SetActive(false);
+        stopCursor?.SetActive(false);
     }
 }

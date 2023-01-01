@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4599061048518659439
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4599061048518659437}
+  - component: {fileID: 4599061048518659436}
+  - component: {fileID: 4599061048518659434}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4599061048518659437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599061048518659439}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.4522324, y: 0.29248995, z: -0.0101084355}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4599061048518659436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599061048518659439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: beaf869bbb963b944b7c9498b91f2e98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectorPrefab: {fileID: 7210132602807995808, guid: bd3822efc8cd2d647ae1c1292d80ab2e, type: 3}
+  stopCursorPrefab: {fileID: 8747565837142855703, guid: 1b2479f0e1688d4439d77dbb3e209ccc, type: 3}
+  slowCursorPrefab: {fileID: 1466747410609043836, guid: b3bddf63502abce4da4e4eab01bc995f, type: 3}
+  slowItemAction:
+    m_Name: Slow Item
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 7a01456f-7c91-47bd-a248-07496e9be69d
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 1ef1dc33-b48e-4a04-be3b-302a8d84a64c
+      m_Path: <Keyboard>/s
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Slow Item
+      m_Flags: 0
+    m_Flags: 0
+  stopItemAction:
+    m_Name: Stop Item
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 3e7344e4-4906-45b9-bb5c-aaa671e4dc9c
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: eaa6a71b-8ee2-4ae4-824a-0e1fd0de4af5
+      m_Path: <Keyboard>/t
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Stop Item
+      m_Flags: 0
+    m_Flags: 0
+  rotateAction:
+    m_Name: Rotate
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: d357ba8f-c4d5-43ee-bff7-d3a76d84fb81
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: bff7c05b-54fd-473e-b884-6ba9236197bc
+      m_Path: <Keyboard>/escape
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Rotate
+      m_Flags: 0
+    m_Flags: 0
+--- !u!114 &4599061048518659434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599061048518659439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa2d199b8057b874584421d77a941a91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  themePalette: {fileID: 11400000, guid: 8d8fa149cebabc9449e8553d8d2c322b, type: 2}

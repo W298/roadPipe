@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
         if (target == null) return;
 
         target.isEnd = true;
-        if (lastCarList.Count != 0 && lastCarList.All(info => info.isEnd)) EndGame();
+        if (lastCarList.Count == GridController.instance.pointAry.Length / 2 && lastCarList.All(info => info.isEnd)) EndGame();
     }
 
     public void SaveScore()

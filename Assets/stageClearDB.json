@@ -18,6 +18,16 @@
         {
             "levelName": "Y",
             "number": 3,
+            "score": 5
+        },
+        {
+            "levelName": "Y",
+            "number": 4,
+            "score": 3
+        },
+        {
+            "levelName": "B",
+            "number": 0,
             "score": 0
         }
     ]

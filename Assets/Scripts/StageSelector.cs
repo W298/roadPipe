@@ -33,10 +33,24 @@ namespace StageSelectorUI
             if (load.Count <= 0) return;
 
             load.Sort((a, b) => a.number.CompareTo(b.number));
-            if (load.Last().score >= 3 && load.Count < stageCount)
+            if (load.Last().score >= 3)
             {
-                StageClearDataManager.instance.OpenStage(level, load.Count);
-                stageList.Find(stage => stage.number == load.Count).isLocked = false;
+                if (load.Count < stageCount)
+                {
+                    StageClearDataManager.instance.OpenStage(level, load.Count);
+                    stageList.Find(stage => stage.number == load.Count).isLocked = false;
+                }
+                else if (load.Count == stageCount)
+                {
+                    var nextLevelName = level switch
+                    {
+                        "Y" => "B",
+                        "B" => "R",
+                        _ => ""
+                    };
+
+                    if (nextLevelName != "") StageClearDataManager.instance.OpenStage(nextLevelName, 0);
+                }
             }
 
             foreach (var data in load)
@@ -200,6 +214,8 @@ namespace StageSelectorUI
 
         public void OpenStage(string levelName, int number)
         {
+            if (data.data.Exists(info => info.levelName == levelName && info.number == number)) return;
+
             data.data.Add(new StageData(levelName, number, 0));
             data = data;
         }
@@ -214,7 +230,7 @@ namespace StageSelectorUI
             }
             else
             {
-                target.score = score;
+                if (score > target.score) target.score = score;
             }
 
             data = data;
