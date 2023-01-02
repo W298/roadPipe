@@ -28,20 +28,11 @@ public class CarArriveInfo
 [ExecuteInEditMode]
 public class GameManager : MonoBehaviour
 {
-    private ScoreIndicator scoreIndicator;
-    private EndGameController endGameController;
     private static GameManager _instance = null;
+    public static GameManager instance => _instance ??= FindObjectOfType<GameManager>();
 
     private int currentScore = 0;
-    
-    public static GameManager instance
-    {
-        get
-        {
-            _instance ??= FindObjectOfType<GameManager>();
-            return _instance;
-        }
-    }
+
     public ThemePalette themePalette;
     public InventoryManager inventoryManager = new InventoryManager(5, 5);
     public List<CarArriveInfo> lastCarList = new List<CarArriveInfo>();
@@ -63,7 +54,7 @@ public class GameManager : MonoBehaviour
 
         var score = (float)currentCarCount / ((float)goalCarCount / 5f);
         currentScore = Mathf.FloorToInt(score);
-        scoreIndicator.Render(currentScore);
+        ScoreIndicator.instance.Render(currentScore);
     }
 
     public void EndCar(Car car)
@@ -83,12 +74,11 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
-        endGameController.gameObject.SetActive(true);
+        EndGameController.instance.gameObject.SetActive(true);
     }
 
-    private void Awake()
+    private void OnDestroy()
     {
-        scoreIndicator = FindObjectOfType<ScoreIndicator>();
-        endGameController = FindObjectOfType<EndGameController>(true);
+        _instance = null;
     }
 }

@@ -5,20 +5,13 @@ using UnityEngine.EventSystems;
 
 public class SelectorHider : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private InputManager inputManager;
-
     public void OnPointerEnter(PointerEventData eventData)
     {
-        inputManager.DisableCursor();
+        InputManager.instance.DisableCursor();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        inputManager.EnableCursor();
-    }
-
-    private void Awake()
-    {
-        inputManager = FindObjectOfType<InputManager>();
+        InputManager.instance.EnableCursor();
     }
 }

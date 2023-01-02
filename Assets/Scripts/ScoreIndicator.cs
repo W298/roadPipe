@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class ScoreIndicator : MonoBehaviour
 {
+    private static ScoreIndicator _instance;
+    public static ScoreIndicator instance => _instance ??= FindObjectOfType<ScoreIndicator>();
+
     public Sprite star;
     public Sprite fillStar;
     public Sprite halfStar;
@@ -27,5 +30,10 @@ public class ScoreIndicator : MonoBehaviour
     private void Awake()
     {
         imageAry = GetComponentsInChildren<Image>();
+    }
+
+    private void OnDestroy()
+    {
+        _instance = null;
     }
 }

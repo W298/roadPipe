@@ -18,6 +18,9 @@ public enum InputMode
 
 public class InputManager : MonoBehaviour
 {
+    private static InputManager _instance;
+    public static InputManager instance => _instance ??= FindObjectOfType<InputManager>();
+
     public GameObject selectorPrefab;
     public GameObject stopCursorPrefab;
     public GameObject slowCursorPrefab;
@@ -69,6 +72,7 @@ public class InputManager : MonoBehaviour
     }
 
     private InputMode inputMode;
+    private bool isCursorDisabled = false;
 
     public InputAction slowItemAction;
     public InputAction stopItemAction;
@@ -79,6 +83,11 @@ public class InputManager : MonoBehaviour
         selector.SetActive(false);
         stopCursor.SetActive(false);
         slowCursor.SetActive(false);
+
+        if (isCursorDisabled)
+        {
+            return new Tuple<Road, Road, Vector3, Quaternion>(null, null, Vector3.zero, Quaternion.identity);
+        }
 
         var spawnPos = GridController.instance.GetCellPosition(worldPos);
         switch (inputMode)
@@ -191,8 +200,14 @@ public class InputManager : MonoBehaviour
         rotateAction.performed += context => inputMode = InputMode.ROTATE;
     }
 
+    private void OnDestroy()
+    {
+        _instance = null;
+    }
+
     public void EnableCursor()
     {
+        isCursorDisabled = false;
         switch (inputMode)
         {
             case InputMode.ROTATE:
@@ -209,8 +224,9 @@ public class InputManager : MonoBehaviour
 
     public void DisableCursor()
     {
-        selector?.SetActive(false);
-        slowCursor?.SetActive(false);
-        stopCursor?.SetActive(false);
+        isCursorDisabled = true;
+        selector.SetActive(false);
+        slowCursor.SetActive(false);
+        stopCursor.SetActive(false);
     }
 }

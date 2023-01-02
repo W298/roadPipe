@@ -20,24 +20,10 @@ public class PathFindResult
 public class GridController : MonoBehaviour
 {
     private static GridController _instance;
-    public static GridController instance
-    {
-        get
-        {
-            if (_instance == null) _instance = FindObjectOfType<GridController>();
-            return _instance;
-        }
-    }
+    public static GridController instance => _instance ??= FindObjectOfType<GridController>();
 
     private static Grid _grid;
-    public static Grid grid
-    {
-        get
-        {
-            if (_grid == null) _grid = instance.GetComponent<Grid>();
-            return _grid;
-        }
-    }
+    public static Grid grid => _grid ??= instance.GetComponent<Grid>();
 
     public Point[] pointAry;
 
@@ -146,5 +132,11 @@ public class GridController : MonoBehaviour
             startPoint.otherPoint = endPoint;
             endPoint.otherPoint = startPoint;
         }
+    }
+
+    private void OnDestroy()
+    {
+        _instance = null;
+        _grid = null;
     }
 }
