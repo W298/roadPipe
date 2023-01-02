@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4c192dce372dea4e851fcbebbdf3dc4, type: 3}
+  m_Name: BGMDB
+  m_EditorClassIdentifier: 
+  levels:
+  - name: Y
+    defaultBGMClip: {fileID: 8300000, guid: 90a97639b470562499c5e3491dd9fcdd, type: 3}
+    stageList: []
+  - name: B
+    defaultBGMClip: {fileID: 8300000, guid: 7f4eedf24a1d81d43aa841e016ced5f6, type: 3}
+    stageList: []
+  - name: R
+    defaultBGMClip: {fileID: 8300000, guid: 1c7655dc3d4d53f45ab9fae5784b4d15, type: 3}
+    stageList: []

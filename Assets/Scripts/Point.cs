@@ -29,6 +29,7 @@ public class Point : Cell
     public Sprite rotatedShadowSprite;
 
     public bool isInfinite = false;
+    public AudioClip sfxClip;
 
     private SpriteRenderer spriteRenderer;
     private Image biasBackground;
@@ -36,9 +37,12 @@ public class Point : Cell
     private Text spawnBiasText;
     private List<GameObject> carDummyList = new List<GameObject>();
 
+    private AudioSource audioSource;
+
     public void ParkCar()
     {
         arrivedCarCount++;
+        PlaySound(0.6f);
         UpdateCarDummy();
         GameManager.instance.OnParkCar();
     }
@@ -46,6 +50,12 @@ public class Point : Cell
     public void OnRotate()
     {
         ApplySprite();
+    }
+
+    private void PlaySound(float pitch)
+    {
+        audioSource.pitch = pitch;
+        audioSource.Play();
     }
 
     private IEnumerator StartSpawnCar()
@@ -71,6 +81,7 @@ public class Point : Cell
         car.StartMove();
 
         carCount--;
+        PlaySound(1.2f);
         UpdateCarDummy();
 
         if (carCount <= 0)
@@ -214,6 +225,8 @@ public class Point : Cell
         biasBackground = GetComponentInChildren<Image>();
         spawnDelayText = GetComponentsInChildren<Text>()[0];
         spawnBiasText = GetComponentsInChildren<Text>()[1];
+
+        audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void Start()
@@ -223,6 +236,8 @@ public class Point : Cell
         InitDummy();
         UpdateCarDummy();
         spawnDelayText.text = carSpawnDelay.ToString();
+
+        audioSource.clip = sfxClip;
 
         if (pointType == PointType.START) StartCoroutine(StartSpawnCar());
     }
