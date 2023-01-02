@@ -29,7 +29,7 @@ public class Point : Cell
     public Sprite rotatedShadowSprite;
 
     public bool isInfinite = false;
-    public AudioClip sfxClip;
+    public bool muteSound = false;
 
     private SpriteRenderer spriteRenderer;
     private Image biasBackground;
@@ -54,6 +54,7 @@ public class Point : Cell
 
     private void PlaySound(float pitch)
     {
+        if (muteSound) return;
         audioSource.pitch = pitch;
         audioSource.Play();
     }
@@ -237,7 +238,7 @@ public class Point : Cell
         UpdateCarDummy();
         spawnDelayText.text = carSpawnDelay.ToString();
 
-        audioSource.clip = sfxClip;
+        audioSource.clip = Resources.Load<AudioClip>("SFX/car_sfx");
 
         if (pointType == PointType.START) StartCoroutine(StartSpawnCar());
     }

@@ -6,9 +6,11 @@ using UnityEngine.UI;
 
 public class MenuSelector : MonoBehaviour
 {
+    public LoadingPanel loadingPanel;
+
     public void LoadStageSelectScene()
     {
-        SceneManager.LoadScene("StageSelect");
+        loadingPanel.LoadScene("StageSelect");
     }
 
     public void LoadOptionScene()
@@ -23,6 +25,6 @@ public class MenuSelector : MonoBehaviour
 
     public void LoadMainMenuScene()
     {
-        SceneManager.LoadScene("MainMenu");
+        loadingPanel.LoadScene("MainMenu");
     }
 }

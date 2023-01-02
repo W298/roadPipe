@@ -169,6 +169,7 @@ GameObject:
   - component: {fileID: 2966189818923758372}
   - component: {fileID: 2501179207511483376}
   - component: {fileID: 7496498606906806599}
+  - component: {fileID: 1159151729813566143}
   m_Layer: 5
   m_Name: StagePrefab
   m_TagString: Untagged
@@ -294,6 +295,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Delegates: []
+--- !u!114 &1159151729813566143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2966189818923758374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20bccbeea60c6e548bf2de6f50d7dbd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverClip: {fileID: 8300000, guid: d3d0bdcc0a000f84fa22d4dd4c55e443, type: 3}
+  clickClip: {fileID: 8300000, guid: ebb97e30c4ded9f49b54162e33446f59, type: 3}
 --- !u!1 &3679138968321753535
 GameObject:
   m_ObjectHideFlags: 0

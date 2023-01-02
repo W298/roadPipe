@@ -266,10 +266,10 @@ namespace StageSelectorUI
         public GameObject carDummyUI;
         public Stage selectedStage = null;
 
+        public LoadingPanel loadingPanel;
         public UnityEvent<Stage> SelectEvent;
 
         private IEnumerator routine = null;
-        private bool isMoving = false;
 
         private IEnumerator OnSelectStage(Stage stage)
         {
@@ -283,16 +283,14 @@ namespace StageSelectorUI
                     stage.parent.containerGameObject.GetComponent<Image>().color;
             }
 
-            isMoving = true;
             selectedStage = stage;
             yield return carDummyUI.GetComponent<CarDummyUIController>().MoveTo(stage);
-            isMoving = false;
         }
 
         public void StartGame()
         {
-            if (selectedStage == null || isMoving) return;
-            SceneManager.LoadScene(selectedStage.level + (selectedStage.number + 1).ToString().PadLeft(2, '0'));
+            if (selectedStage == null) return;
+            loadingPanel.LoadScene(selectedStage.level + (selectedStage.number + 1).ToString().PadLeft(2, '0'));
         }
 
         private void Awake()
