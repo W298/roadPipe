@@ -25,6 +25,7 @@ public class InputManager : MonoBehaviour
     public GameObject stopCursorPrefab;
     public GameObject slowCursorPrefab;
 
+    private AudioSource audioSource;
     private GameObject _selector = null;
 
     private GameObject selector
@@ -77,6 +78,7 @@ public class InputManager : MonoBehaviour
     public InputAction slowItemAction;
     public InputAction stopItemAction;
     public InputAction rotateAction;
+    public InputAction pauseAction;
 
     private Tuple<Road, Road, Vector3, Quaternion> SetCursor(Vector3 worldPos)
     {
@@ -140,8 +142,9 @@ public class InputManager : MonoBehaviour
 
         var result = SetCursor(worldPos);
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !isCursorDisabled)
         {
+            audioSource.Play();
             var cell = GridController.instance.GetCell(worldPos);
             switch (inputMode)
             {
@@ -186,7 +189,10 @@ public class InputManager : MonoBehaviour
     {
         var stopKey = stopItemAction.bindings[0].path[11..].ToUpper();
         var slowKey = slowItemAction.bindings[0].path[11..].ToUpper();
-        PlayerUI.instance.UpdateKeyUI(stopKey, slowKey);
+        var rotateKey = rotateAction.bindings[0].path[11..].ToUpper();
+        
+        PlayerUI.instance.UpdateKeyUI(stopKey, slowKey, rotateKey);
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -194,15 +200,22 @@ public class InputManager : MonoBehaviour
         slowItemAction.Enable();
         stopItemAction.Enable();
         rotateAction.Enable();
+        pauseAction.Enable();
 
         slowItemAction.performed += context => inputMode = InputMode.SLOW;
         stopItemAction.performed += context => inputMode = InputMode.STOP;
         rotateAction.performed += context => inputMode = InputMode.ROTATE;
+        pauseAction.performed += context => PlayerUI.instance.TogglePauseMenu();
     }
 
     private void OnDestroy()
     {
         _instance = null;
+
+        slowItemAction.ChangeBinding(0).Erase();
+        stopItemAction.ChangeBinding(0).Erase();
+        rotateAction.ChangeBinding(0).Erase();
+        pauseAction.ChangeBinding(0).Erase();
     }
 
     public void EnableCursor()

@@ -16,13 +16,13 @@ public class EndGameController : MonoBehaviour
     private void BackToStageSelect()
     {
         GameManager.instance.SaveScore();
-        SceneManager.LoadScene("StageSelect");
+        PlayerUI.instance.GetComponentInChildren<LoadingPanel>().LoadScene("StageSelect");
     }
 
     private void Retry()
     {
         GameManager.instance.SaveScore();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        PlayerUI.instance.GetComponentInChildren<LoadingPanel>().LoadScene(SceneManager.GetActiveScene().name);
     }
 
     private void Awake()

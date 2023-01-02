@@ -18,6 +18,11 @@ public class MenuSelector : MonoBehaviour
 
     }
 
+    public void ReloadCurrentScene()
+    {
+        loadingPanel.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     public void Quit()
     {
         Application.Quit();

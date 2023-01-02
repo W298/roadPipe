@@ -31,6 +31,7 @@ public class ButtonSFXHandler : MonoBehaviour
         pointerClick.eventID = EventTriggerType.PointerClick;
         pointerClick.callback.AddListener(data =>
         {
+            if (!gameObject.activeInHierarchy) return;
             audioSource.pitch = 1;
             audioSource.Play();
         });
