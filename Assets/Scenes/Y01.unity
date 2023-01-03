@@ -499,6 +499,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: allowItem
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: allowSlow
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: allowStop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultSlowItemCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultStopItemCount
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4599061048518659437, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -1503,7 +1523,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: carSpawnBias
-      value: 5
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: carSpawnDelay
@@ -3663,6 +3683,10 @@ PrefabInstance:
     - target: {fileID: 7899130117531595315, guid: 7cad6d37942d08a42b16320c7a8faa83, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8818310108606027873, guid: 7cad6d37942d08a42b16320c7a8faa83, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -16.699951
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7cad6d37942d08a42b16320c7a8faa83, type: 3}
@@ -11297,7 +11321,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: carSpawnBias
-      value: 7
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3678954419368855332, guid: f52fe734cb0af024d9387a0831d166d3, type: 3}
       propertyPath: carSpawnDelay

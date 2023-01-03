@@ -25,5 +25,19 @@ public class BGMController : MonoBehaviour
         }
 
         bgmSource.Play();
+        StartCoroutine(FadeIn());
+    }
+
+    private IEnumerator FadeIn()
+    {
+        bgmSource.volume = 0f;
+        float t = 0;
+
+        while (t < 1)
+        {
+            bgmSource.volume = Mathf.Lerp(0, 1, t);
+            t += 0.005f;
+            yield return new WaitForFixedUpdate();
+        }
     }
 }

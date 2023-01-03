@@ -16,6 +16,26 @@ public class PlayerUI : MonoBehaviour
     public Text slowKeyText;
     public Text rotateKeyText;
 
+    public void HideStopUI()
+    {
+        stopText.transform.parent.gameObject.SetActive(false);
+
+        slowText.transform.parent.GetComponent<RectTransform>().anchoredPosition =
+            stopText.transform.parent.GetComponent<RectTransform>().anchoredPosition;
+    }
+
+    public void HideSlowUI()
+    {
+        slowText.transform.parent.gameObject.SetActive(false);
+    }
+
+    public void HideAllItemUI()
+    {
+        stopText.transform.parent.gameObject.SetActive(false);
+        slowText.transform.parent.gameObject.SetActive(false);
+        rotateKeyText.transform.parent.parent.gameObject.SetActive(false);
+    }
+
     public void UpdateUI()
     {
         stopText.text = "X " + GameManager.instance.inventoryManager.GetCount(ItemType.STOP).ToString();
@@ -59,8 +79,20 @@ public class PlayerUI : MonoBehaviour
     {
         stopText = transform.GetChild(0).GetChild(0).GetComponent<Text>();
         slowText = transform.GetChild(1).GetChild(0).GetComponent<Text>();
+    }
 
+    private void Start()
+    {
         UpdateUI();
+        if (!GameManager.instance.allowSlow)
+        {
+            HideSlowUI();
+            if (!GameManager.instance.allowStop) HideAllItemUI();
+        }
+        else if (!GameManager.instance.allowStop)
+        {
+            HideStopUI();
+        }
     }
 
     private void OnDestroy()

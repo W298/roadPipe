@@ -33,8 +33,13 @@ public class GameManager : MonoBehaviour
 
     private int currentScore = 0;
 
+    public int defaultStopItemCount = 5;
+    public int defaultSlowItemCount = 5;
+    public bool allowStop = true;
+    public bool allowSlow = true;
+
     public ThemePalette themePalette;
-    public InventoryManager inventoryManager = new InventoryManager(5, 5);
+    public InventoryManager inventoryManager;
     public List<CarArriveInfo> lastCarList = new List<CarArriveInfo>();
 
     public Theme GetTheme(ThemeName name)
@@ -75,6 +80,11 @@ public class GameManager : MonoBehaviour
     private void EndGame()
     {
         EndGameController.instance.gameObject.SetActive(true);
+    }
+
+    private void Awake()
+    {
+        inventoryManager = new InventoryManager(allowStop ? defaultStopItemCount : -1, allowSlow ? defaultSlowItemCount : -1);
     }
 
     private void OnDestroy()

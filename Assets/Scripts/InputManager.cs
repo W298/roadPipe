@@ -197,8 +197,9 @@ public class InputManager : MonoBehaviour
 
     private void Start()
     {
-        slowItemAction.Enable();
-        stopItemAction.Enable();
+        if (GameManager.instance.allowStop) stopItemAction.Enable();
+        if (GameManager.instance.allowSlow) slowItemAction.Enable();
+
         rotateAction.Enable();
         pauseAction.Enable();
 
