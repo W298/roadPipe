@@ -270,6 +270,7 @@ MonoBehaviour:
   crashParticleSystem: {fileID: 2504827078364735505, guid: 02f30309b0af4e84dafa9445bcfdac0b, type: 3}
   _currentRoad: {fileID: 0}
   t: 0
+  maskPrefab: {fileID: 5592466237661517337, guid: f1b71eb8750f3fb42b20146bac0df2e3, type: 3}
 --- !u!1 &6425361129492590856
 GameObject:
   m_ObjectHideFlags: 0

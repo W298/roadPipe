@@ -26,6 +26,20 @@ public struct NextRoadStatus
     }
 }
 
+public class PathVisualBunch
+{
+    public Car owner;
+    public PathInfo pathInfo;
+    public GameObject mask;
+
+    public PathVisualBunch(Car owner, PathInfo pathInfo, GameObject mask)
+    {
+        this.owner = owner;
+        this.pathInfo = pathInfo;
+        this.mask = mask;
+    }
+}
+
 public class Car : MonoBehaviour
 {
     [Serialize] public List<PathInfo> path = new List<PathInfo>();
@@ -33,6 +47,7 @@ public class Car : MonoBehaviour
     public int currentRoadRunningIndex = -1;
     public bool hasValidPath = false;
     public bool arrived = false;
+    public bool crashed = false;
 
     public Point startPoint;
     public Point destinationPoint;
@@ -59,12 +74,17 @@ public class Car : MonoBehaviour
     private GameObject skullUI;
     private Canvas canvas;
 
+    public GameObject maskPrefab;
+    private List<PathVisualBunch> pathVisual = new List<PathVisualBunch>();
+
     public bool PathFind(int startRunningIndex, Cell start, Cell destination)
     {
-        foreach (var pathInfo in path.Where((info, index) => currentRoadIndex >= 0 && index >= currentRoadIndex))
+        foreach (var o in pathVisual)
         {
-            pathInfo.road.ResetPathRender(pathInfo.attachIndex);
+            o.pathInfo.road.maskGameObjectList.Remove(o.mask);
+            Destroy(o.mask);
         }
+        pathVisual.Clear();
 
         var newPath = GridController.instance.RequestPath(startRunningIndex, start, destination);
         hasValidPath = newPath.Count != 0;
@@ -86,7 +106,14 @@ public class Car : MonoBehaviour
 
         foreach (var pathInfo in path.Where((info, index) => index >= currentRoadIndex))
         {
-            pathInfo.road.InitPathRender(this, pathInfo.attachIndex);
+            pathInfo.road.dashList[pathInfo.attachIndex].GetComponent<SpriteRenderer>().color = backgroundSprite.color;
+            var g = Instantiate(maskPrefab, Vector3.zero, Quaternion.identity);
+            g.GetComponent<SpriteMask>().sprite = pathInfo.road.GetMask(0, pathInfo.attachIndex);
+            g.transform.position = pathInfo.road.transform.position;
+            g.transform.rotation = pathInfo.road.transform.rotation;
+            
+            pathInfo.road.maskGameObjectList.Add(g);
+            pathVisual.Add(new PathVisualBunch(this, pathInfo, g));
         }
 
         return true;
@@ -132,7 +159,7 @@ public class Car : MonoBehaviour
 
     private bool NeedPathFind()
     {
-        return !arrived && !destinationPoint.isConnected(currentRoad);
+        return !arrived && !destinationPoint.isConnected(currentRoad) && !crashed;
     }
 
     private NextRoadStatus GetNextRoadStatus()
@@ -196,7 +223,10 @@ public class Car : MonoBehaviour
         var dir = vectors[1] - vectors[0];
         transform.right = dir;
 
-        if (hasValidPath) currentRoad.UpdatePathRender(currentRoadRunningIndex, Mathf.Clamp(t * 1.1f, 0, 1));
+        if (hasValidPath) {
+            pathVisual.Find(bunch => bunch.pathInfo.road == currentRoad && bunch.owner == this).mask.GetComponent<SpriteMask>().sprite =
+                currentRoad.GetMask(t, currentRoadRunningIndex);
+        }
 
         yield return new WaitForFixedUpdate();
     }
@@ -227,7 +257,11 @@ public class Car : MonoBehaviour
 
         t += (speed / 3) / Vector2.Distance(a, b) * 0.85f;
 
-        if (hasValidPath) currentRoad.UpdatePathRender(currentRoadRunningIndex, Mathf.Clamp(t * 1.1f, 0, 1));
+        if (hasValidPath)
+        {
+            var bunch = pathVisual.Find(bunch => bunch.pathInfo.road == currentRoad && bunch.owner == this);
+            if (bunch != null) bunch.mask.GetComponent<SpriteMask>().sprite = currentRoad.GetMask(t, currentRoadRunningIndex);
+        }
 
         yield return new WaitForFixedUpdate();
     }
@@ -290,6 +324,11 @@ public class Car : MonoBehaviour
 
         yield return MoveAlongWayPoints();
 
+        var b = pathVisual.Find(bunch => bunch.pathInfo.road == currentRoad && bunch.owner == this);
+        if (b != null) currentRoad.maskGameObjectList.Remove(b.mask);
+        if (b != null) Destroy(b.mask);
+        pathVisual.Remove(b);
+
         var needNextMove = PrepareNextRoad();
         if (needNextMove) StartCoroutine(MoveRoutine());
     }
@@ -331,6 +370,8 @@ public class Car : MonoBehaviour
 
     private IEnumerator CrashCar()
     {
+        crashed = true;
+
         var crashParticleGameObject = Instantiate(crashParticleSystem, Vector3.zero, Quaternion.Euler(-90, 0, 0));
         crashParticleGameObject.transform.parent = transform;
         crashParticleGameObject.transform.localPosition = new Vector3(0, 0, 60);

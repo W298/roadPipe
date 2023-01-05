@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting.Antlr3.Runtime.Collections;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
 public class WayPoint
 {
@@ -28,9 +28,39 @@ public class BezierRendererBunch
     }
 }
 
+[Serializable]
+public class MaskInfo
+{
+    public Sprite sprite;
+    public float t;
+
+    public MaskInfo(Sprite sprite, float t)
+    {
+        this.sprite = sprite;
+        this.t = t;
+    }
+}
+
+[Serializable]
+public class MaskInfoBunch
+{
+    public int index;
+    public List<MaskInfo> data;
+
+    public MaskInfoBunch(int index, List<MaskInfo> data)
+    {
+        this.index = index;
+        this.data = data;
+    }
+}
+
 public class Road : Cell
 {
-    private List<BezierRendererBunch> bezierRendererList;
+    private SpriteRenderer spriteRenderer;
+    public List<RoadDash> dashList;
+
+    public List<MaskInfoBunch> maskList;
+    public List<GameObject> maskGameObjectList;
 
     public RoadInfo roadInfo;
     public WayPoint[] wayPointAry;
@@ -62,79 +92,59 @@ public class Road : Cell
         wayPointAry = wayPointList.ToArray();
     }
 
-    public void InitPathRender(Car car, int attachIndex)
+    public Sprite GetMask(float t, int index)
     {
-        var color = car.startPoint.pointTheme.color;
-        bezierRendererList[attachIndex].bezierRenderer.color = color;
-        UpdatePathRender(attachIndex, 0);
+        var vt = (float)(Math.Truncate(t * 100) / 100);
+
+        if (vt == 0) return maskList.Count == 0 ? null : maskList[index].data[0].sprite;
+        for (int i = 0; i < maskList[index].data.Count - 2; i++)
+        { 
+            if (vt >= maskList[index].data[i].t && vt < maskList[index].data[i + 1].t)
+            {
+                return maskList[index].data[i + 1].sprite;
+            }
+        }
+        return null;
     }
 
-    public void ResetPathRender(int attachIndex)
+    private void LoadMask()
     {
-        UpdatePathRender(attachIndex, 1);
-    }
+        var roadName = spriteRenderer.sprite.name;
+        maskList = new List<MaskInfoBunch>();
 
-    public void UpdatePathRender(int attachIndex, float t)
-    {
-        var bezierRendererBunch = bezierRendererList[attachIndex];
-        var bezierRenderer = bezierRendererBunch.bezierRenderer;
-        var points = bezierRendererBunch.points;
-
-        if (points.Count >= 3)
+        for (int i = 0; i < wayPointAry.Length; i++)
         {
-            bezierRenderer.start = points[0].transform.position + (points[1].transform.position - points[0].transform.position).normalized * 0.15f;
-            bezierRenderer.control = points[1].transform.position;
-            bezierRenderer.end = points[2].transform.position + (points[1].transform.position - points[2].transform.position).normalized * 0.15f;
+            var list = new List<MaskInfo>();
+            var tex = Resources.LoadAll("RoadMask/" + roadName + "/" + i.ToString(), typeof(Sprite));
+            if (tex.Length == 0) break;
+            foreach (var ts in tex)
+            {
+                var v = ts.name[0] + "." + ts.name[1..];
+                var vf = float.Parse(v);
 
-            bezierRenderer.forward = points[0].transform.position;
-            bezierRenderer.backward = points[2].transform.position;
+                list.Add(new MaskInfo(ts as Sprite, vf));
+            }
+            maskList.Add(new MaskInfoBunch(i, list));
         }
-        else
-        {
-            bezierRenderer.isLinear = true;
-            bezierRenderer.start = points[0].transform.position;
-            bezierRenderer.end = points[1].transform.position;
-        }
-
-        bezierRenderer.t = t;
-        bezierRenderer.Render();
     }
 
     protected override void RotationUpdate()
     {
         base.RotationUpdate();
-
-        for (int i = 0; i < bezierRendererList.Count; i++)
-        {
-            if (bezierRendererList[i].bezierRenderer.t is 0 or 1)
-            {
-                UpdatePathRender(i, bezierRendererList[i].bezierRenderer.t);
-            }
-        }
+        maskGameObjectList.ForEach(g => g.transform.rotation = transform.rotation);
     }
 
     protected override void Awake()
     {
         base.Awake();
 
-        bezierRendererList = GetComponentsInChildren<BezierRenderer>().Select(bezierRenderer =>
-        {
-            var points = new List<GameObject>();
-            for (int i = 0; i < bezierRenderer.transform.childCount; i++)
-            {
-                points.Add(bezierRenderer.transform.GetChild(i).gameObject);
-            }
-
-            return new BezierRendererBunch(bezierRenderer, points);
-        }).ToList();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        dashList = GetComponentsInChildren<RoadDash>().ToList();
         SetWayPoint();
     }
 
     private void Start()
     {
-        for (int i = 0; i < bezierRendererList.Count; i++)
-        {
-            UpdatePathRender(i, 1);
-        }
+        LoadMask();
     }
 }
