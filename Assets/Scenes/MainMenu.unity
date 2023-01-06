@@ -13524,7 +13524,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Discard
+  m_Text: Return
 --- !u!222 &1699263820
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16095,10 +16095,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa2d199b8057b874584421d77a941a91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultStopItemCount: 5
-  defaultSlowItemCount: 5
-  allowStop: 1
-  allowSlow: 1
+  defaultValue: []
   themePalette: {fileID: 11400000, guid: 8d8fa149cebabc9449e8553d8d2c322b, type: 2}
 --- !u!4 &2085847704
 Transform:

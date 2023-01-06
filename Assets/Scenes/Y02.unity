@@ -3286,6 +3286,10 @@ PrefabInstance:
       value: 0.34117648
       objectReference: {fileID: 0}
     - target: {fileID: 4571876446922803710, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
+      propertyPath: carCount
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4571876446922803710, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
       propertyPath: pointThemeName
       value: 1
       objectReference: {fileID: 0}
@@ -10470,6 +10474,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1743695376}
     m_Modifications:
+    - target: {fileID: 4571876446922803710, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
+      propertyPath: carCount
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 6263224104402417275, guid: f1e8f0f5cd2fa874db5f680a1c8c2aff, type: 3}
       propertyPath: m_RootOrder
       value: 1

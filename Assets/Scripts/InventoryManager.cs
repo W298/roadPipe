@@ -17,7 +17,7 @@ public class InventoryManager
     public InventoryManager(ItemDefaultValue[] defaultValue)
     {
         inventory = new Dictionary<ItemType, int>();
-
+        if (defaultValue == null) return;
         foreach (var v in defaultValue)
         {
             inventory[v.type] = v.value;
