@@ -16,6 +16,10 @@ public class PlayerUI : MonoBehaviour
     public Text slowKeyText;
     public Text rotateKeyText;
 
+    public GameObject rotateBG;
+    public GameObject slowBG;
+    public GameObject stopBG;
+
     public void HideStopUI()
     {
         stopText.transform.parent.gameObject.SetActive(false);
@@ -75,10 +79,24 @@ public class PlayerUI : MonoBehaviour
         InputManager.instance.EnableCursor();
     }
 
-    private void Awake()
+    public void UpdateSelectItemUI(InputMode mode)
     {
-        stopText = transform.GetChild(0).GetChild(0).GetComponent<Text>();
-        slowText = transform.GetChild(1).GetChild(0).GetComponent<Text>();
+        rotateBG.SetActive(false);
+        slowBG.SetActive(false);
+        stopBG.SetActive(false);
+
+        switch (mode)
+        {
+            case InputMode.ROTATE:
+                rotateBG.SetActive(true);
+                break;
+            case InputMode.SLOW:
+                slowBG.SetActive(true);
+                break;
+            case InputMode.STOP:
+                stopBG.SetActive(true);
+                break;
+        }
     }
 
     private void Start()

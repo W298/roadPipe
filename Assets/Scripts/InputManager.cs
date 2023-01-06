@@ -93,8 +93,22 @@ public class InputManager : MonoBehaviour
             case InputMode.SLOW:
                 selector.SetActive(true);
                 selector.transform.position = spawnPos;
+
                 slowCursor.SetActive(true);
                 slowCursor.transform.position = spawnPos;
+
+                var cell = GridController.instance.GetCell(worldPos);
+                if (cell is Road road)
+                {
+                    var overlay = road.GetSlowOverlaySprite();
+                    slowCursor.GetComponent<SpriteRenderer>().sprite = overlay;
+                    slowCursor.transform.rotation = road.transform.rotation;
+                }
+                else
+                {
+                    slowCursor.GetComponent<SpriteRenderer>().sprite = null;
+                }
+
                 break;
             case InputMode.STOP:
                 stopCursor.SetActive(true);
@@ -199,10 +213,12 @@ public class InputManager : MonoBehaviour
         rotateAction.Enable();
         pauseAction.Enable();
 
-        slowItemAction.performed += context => inputMode = InputMode.SLOW;
-        stopItemAction.performed += context => inputMode = InputMode.STOP;
-        rotateAction.performed += context => inputMode = InputMode.ROTATE;
+        slowItemAction.performed += context => ChangeMode(InputMode.SLOW);
+        stopItemAction.performed += context => ChangeMode(InputMode.STOP);
+        rotateAction.performed += context => ChangeMode(InputMode.ROTATE);
         pauseAction.performed += context => PlayerUI.instance.TogglePauseMenu();
+
+        PlayerUI.instance.UpdateSelectItemUI(inputMode);
     }
 
     private void OnDestroy()
@@ -213,6 +229,12 @@ public class InputManager : MonoBehaviour
         stopItemAction.ChangeBinding(0).Erase();
         rotateAction.ChangeBinding(0).Erase();
         pauseAction.ChangeBinding(0).Erase();
+    }
+
+    private void ChangeMode(InputMode mode)
+    {
+        inputMode = mode;
+        PlayerUI.instance.UpdateSelectItemUI(mode);
     }
 
     public void EnableCursor()

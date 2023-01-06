@@ -46,6 +46,7 @@ public class Road : Cell
 {
     private SpriteRenderer spriteRenderer;
     private List<RoadDash> dashList;
+    private GameObject slowOverlay;
 
     public List<MaskInfoBunch> maskList;
     public List<GameObject> maskGameObjectList;
@@ -82,6 +83,21 @@ public class Road : Cell
             }
         }
         return null;
+    }
+
+    public void EnableSlowOverlay()
+    {
+        slowOverlay.SetActive(true);
+    }
+
+    public void DisableSlowOverlay()
+    {
+        slowOverlay.SetActive(false);
+    }
+
+    public Sprite GetSlowOverlaySprite()
+    {
+        return slowOverlay.GetComponent<SpriteRenderer>().sprite;
     }
 
     private void SetWayPoint()
@@ -133,6 +149,8 @@ public class Road : Cell
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         dashList = GetComponentsInChildren<RoadDash>().ToList();
+        slowOverlay = transform.GetChild(transform.childCount - 1).GetChild(0).gameObject;
+
         SetWayPoint();
     }
 

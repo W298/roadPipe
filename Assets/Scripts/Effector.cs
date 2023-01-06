@@ -54,13 +54,13 @@ public class SlowEffector : Effector
         road = GetComponent<Road>();
         active = true;
 
-        transform.GetChild(transform.childCount - 1).GetChild(0).gameObject.SetActive(true);
+        road.EnableSlowOverlay();
 
         if (duration < 0) yield break;
         yield return new WaitForSeconds(duration);
         active = false;
 
-        transform.GetChild(transform.childCount - 1).GetChild(0).gameObject.SetActive(false);
+        road.DisableSlowOverlay();
 
         road.carList.ForEach(car => car.ResetSpeed());
         Destroy(this);

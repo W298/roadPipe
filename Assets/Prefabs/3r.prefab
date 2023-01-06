@@ -519,7 +519,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotation: 0
   cellConnection: 01000101
-  dashList: []
   maskList: []
   maskGameObjectList: []
   roadInfo: {fileID: 11400000, guid: fb271a4e329299741a9e834ecc1ad841, type: 2}
@@ -828,7 +827,7 @@ SpriteRenderer:
   m_Sprite: {fileID: 21300000, guid: 4f9c254d60a0f1842bcc2bcb2bb1ea04, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
-  m_FlipY: 1
+  m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5

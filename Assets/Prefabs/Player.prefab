@@ -60,7 +60,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: 1ef1dc33-b48e-4a04-be3b-302a8d84a64c
-      m_Path: <Keyboard>/s
+      m_Path: <Keyboard>/2
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -77,7 +77,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: eaa6a71b-8ee2-4ae4-824a-0e1fd0de4af5
-      m_Path: <Keyboard>/t
+      m_Path: <Keyboard>/3
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -94,7 +94,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: bff7c05b-54fd-473e-b884-6ba9236197bc
-      m_Path: <Keyboard>/r
+      m_Path: <Keyboard>/1
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -147,7 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06699ebdf4446984b8c25bb04cd8a230, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mixer: {fileID: 24300002, guid: ba972d07aa3ea554bbad03ad76ac6f15, type: 2}
   bgmDB: {fileID: 11400000, guid: ee3c2fc8d97a34441a9d72183df31044, type: 2}
   isLoop: 1
 --- !u!82 &9055559042675868018
