@@ -519,6 +519,26 @@ PrefabInstance:
       propertyPath: defaultStopItemCount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultValue.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultValue.Array.data[0].type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultValue.Array.data[1].type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultValue.Array.data[0].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4599061048518659434, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
+      propertyPath: defaultValue.Array.data[1].value
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4599061048518659437, guid: f096b93082de4d149828e1d8033ad4a3, type: 3}
       propertyPath: m_RootOrder
       value: 1

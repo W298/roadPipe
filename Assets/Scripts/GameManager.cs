@@ -6,12 +6,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum ItemType
-{
-    STOP,
-    SLOW
-}
-
 public class CarArriveInfo
 {
     public Point startPoint;
@@ -25,6 +19,14 @@ public class CarArriveInfo
     }
 }
 
+[Serializable]
+public class ItemDefaultValue
+{
+    public ItemType type;
+    public bool allow = true;
+    public int value = 5;
+}
+
 [ExecuteInEditMode]
 public class GameManager : MonoBehaviour
 {
@@ -33,14 +35,16 @@ public class GameManager : MonoBehaviour
 
     private int currentScore = 0;
 
-    public int defaultStopItemCount = 5;
-    public int defaultSlowItemCount = 5;
-    public bool allowStop = true;
-    public bool allowSlow = true;
+    public ItemDefaultValue[] defaultValue;
 
     public ThemePalette themePalette;
     public InventoryManager inventoryManager;
     public List<CarArriveInfo> lastCarList = new List<CarArriveInfo>();
+
+    public bool GetItemAllow(ItemType type)
+    {
+        return defaultValue.Any(v => v.type == type && v.allow);
+    }
 
     public Theme GetTheme(ThemeName name)
     {
@@ -84,7 +88,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        inventoryManager = new InventoryManager(allowStop ? defaultStopItemCount : -1, allowSlow ? defaultSlowItemCount : -1);
+        inventoryManager = new InventoryManager(defaultValue);
     }
 
     private void OnDestroy()

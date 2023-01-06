@@ -2556,14 +2556,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 6261104216051352682}
-  stopText: {fileID: 5794819456213371347}
-  slowText: {fileID: 7899130118971218365}
+  textList:
+  - type: 0
+    value: {fileID: 7899130118971218365}
+  - type: 1
+    value: {fileID: 5794819456213371347}
+  imageList:
+  - type: 0
+    value: {fileID: 7899130119023581516}
+  - type: 1
+    value: {fileID: 3258311302558844599}
+  bgList:
+  - type: 0
+    value: {fileID: 416003351060374461}
+  - type: 1
+    value: {fileID: 3142861028835266114}
   stopKeyText: {fileID: 5176118632388263504}
   slowKeyText: {fileID: 7899130118056813673}
   rotateKeyText: {fileID: 1940209469871828277}
   rotateBG: {fileID: 4030163829855680191}
-  slowBG: {fileID: 416003351060374461}
-  stopBG: {fileID: 3142861028835266114}
 --- !u!1 &7899130117894148230
 GameObject:
   m_ObjectHideFlags: 0
