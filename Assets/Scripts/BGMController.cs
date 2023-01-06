@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class BGMController : MonoBehaviour
@@ -13,6 +14,7 @@ public class BGMController : MonoBehaviour
     private void Awake()
     {
         bgmSource = gameObject.AddComponent<AudioSource>();
+        bgmSource.outputAudioMixerGroup = Resources.Load<AudioMixer>("Settings/MainMixer").FindMatchingGroups("Master")[0];
         bgmSource.loop = isLoop;
     }
 

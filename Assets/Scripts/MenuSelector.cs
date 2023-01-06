@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class MenuSelector : MonoBehaviour
 {
     public LoadingPanel loadingPanel;
+    public GameObject optionPanel;
 
     public void LoadStageSelectScene()
     {
@@ -15,7 +16,7 @@ public class MenuSelector : MonoBehaviour
 
     public void LoadOptionScene()
     {
-
+        optionPanel.gameObject.SetActive(!optionPanel.gameObject.activeSelf);
     }
 
     public void ReloadCurrentScene()

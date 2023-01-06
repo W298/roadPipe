@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class ButtonSFXHandler : MonoBehaviour
 {
@@ -18,6 +18,8 @@ public class ButtonSFXHandler : MonoBehaviour
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
         audioSource.clip = Resources.Load<AudioClip>("SFX/click_sfx");
+
+        audioSource.outputAudioMixerGroup = Resources.Load<AudioMixer>("Settings/MainMixer").FindMatchingGroups("Master")[0];
 
         var pointerEnter = new EventTrigger.Entry();
         pointerEnter.eventID = EventTriggerType.PointerEnter;
