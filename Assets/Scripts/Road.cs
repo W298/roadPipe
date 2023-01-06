@@ -16,18 +16,6 @@ public class WayPoint
     }
 }
 
-public class BezierRendererBunch
-{
-    public BezierRenderer bezierRenderer;
-    public List<GameObject> points;
-
-    public BezierRendererBunch(BezierRenderer bezierRenderer, List<GameObject> points)
-    {
-        this.bezierRenderer = bezierRenderer;
-        this.points = points;
-    }
-}
-
 [Serializable]
 public class MaskInfo
 {
@@ -57,7 +45,7 @@ public class MaskInfoBunch
 public class Road : Cell
 {
     private SpriteRenderer spriteRenderer;
-    public List<RoadDash> dashList;
+    private List<RoadDash> dashList;
 
     public List<MaskInfoBunch> maskList;
     public List<GameObject> maskGameObjectList;
@@ -76,20 +64,9 @@ public class Road : Cell
         return roadInfo.directionAry[rotation].data.FindIndex(d => d.to == to);
     }
 
-    private void SetWayPoint()
+    public void ApplyDashColor(int attachIndex, Color color)
     {
-        List<WayPoint> wayPointList = new List<WayPoint>();
-        for (int i = 0; i < transform.childCount / 2; i++)
-        {
-            List<GameObject> l = new List<GameObject>();
-            for (int j = 0; j < transform.GetChild(i).childCount; j++)
-            {
-                l.Add(transform.GetChild(i).GetChild(j).gameObject);
-            }
-            wayPointList.Add(new WayPoint(l.ToArray()));
-        }
-
-        wayPointAry = wayPointList.ToArray();
+        dashList[attachIndex].GetComponent<SpriteRenderer>().color = color;
     }
 
     public Sprite GetMask(float t, int index)
@@ -98,13 +75,29 @@ public class Road : Cell
 
         if (vt == 0) return maskList.Count == 0 ? null : maskList[index].data[0].sprite;
         for (int i = 0; i < maskList[index].data.Count - 2; i++)
-        { 
+        {
             if (vt >= maskList[index].data[i].t && vt < maskList[index].data[i + 1].t)
             {
                 return maskList[index].data[i + 1].sprite;
             }
         }
         return null;
+    }
+
+    private void SetWayPoint()
+    {
+        List<WayPoint> wayPointList = new List<WayPoint>();
+        for (int i = 0; i < transform.childCount - 1; i++)
+        {
+            var l = new List<GameObject>();
+            for (int j = 0; j < transform.GetChild(i).childCount; j++)
+            {
+                l.Add(transform.GetChild(i).GetChild(j).gameObject);
+            }
+            wayPointList.Add(new WayPoint(l.ToArray()));
+        }
+
+        wayPointAry = wayPointList.ToArray();
     }
 
     private void LoadMask()

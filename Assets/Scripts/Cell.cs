@@ -101,9 +101,10 @@ public class Cell : MonoBehaviour
 
         foreach (var car in carAry)
         {
-            car.OnRotate();
+            car.OnRotate(this);
         }
-        GridController.instance.OnRotate();
+
+        GridController.instance.OnRotate(this);
     }
 
     public void RotateConnection()

@@ -56,9 +56,9 @@ public class GridController : MonoBehaviour
         return cell;
     }
 
-    public void OnRotate()
+    public void OnRotate(Cell target)
     {
-        pathFindResultList.Clear();
+        pathFindResultList.RemoveAll(result => result.path.Exists(info => info.road == target));
     }
 
     public List<PathInfo> RequestPath(int startRunningIndex, Cell start, Cell destination)

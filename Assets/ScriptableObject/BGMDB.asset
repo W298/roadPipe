@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levels:
   - name: Y
-    defaultBGMClip: {fileID: 8300000, guid: 90a97639b470562499c5e3491dd9fcdd, type: 3}
+    defaultBGMClip: {fileID: 8300000, guid: f21c848290798e94abfe0e90dfa41ad4, type: 3}
     stageList: []
   - name: B
-    defaultBGMClip: {fileID: 8300000, guid: 7f4eedf24a1d81d43aa841e016ced5f6, type: 3}
+    defaultBGMClip: {fileID: 8300000, guid: b2aa2c9e574d40d4991859206cbb22ec, type: 3}
     stageList: []
   - name: R
-    defaultBGMClip: {fileID: 8300000, guid: 1c7655dc3d4d53f45ab9fae5784b4d15, type: 3}
+    defaultBGMClip: {fileID: 8300000, guid: 7f4eedf24a1d81d43aa841e016ced5f6, type: 3}
     stageList: []
