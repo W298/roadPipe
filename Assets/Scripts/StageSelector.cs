@@ -18,6 +18,7 @@ namespace StageSelectorUI
         public Color deselectColor;
         public List<Stage> stageList;
         public GameObject containerGameObject;
+        public bool isLocked = true;
 
         public void InitStageList()
         {
@@ -40,14 +41,7 @@ namespace StageSelectorUI
                 }
                 else if (load.Count == stageCount)
                 {
-                    var nextLevelName = level switch
-                    {
-                        "Y" => "B",
-                        "B" => "R",
-                        _ => ""
-                    };
-
-                    if (nextLevelName != "") StageClearDataManager.instance.OpenStage(nextLevelName, 0);
+                    OpenNextLevel();
                 }
             }
 
@@ -57,6 +51,18 @@ namespace StageSelectorUI
                 targetStage.isLocked = false;
                 targetStage.score = data.score;
             }
+        }
+
+        private void OpenNextLevel()
+        {
+            var nextLevelName = level switch
+            {
+                "Y" => "B",
+                "B" => "R",
+                _ => ""
+            };
+
+            if (nextLevelName != "" && !StageSelector.instance.IsLevelLocked(nextLevelName)) StageClearDataManager.instance.OpenStage(nextLevelName, 0);
         }
     }
 
@@ -105,6 +111,7 @@ namespace StageSelectorUI
 
             stageGameObject.gameObject.transform.SetParent(stageContainer.containerGameObject.transform);
             stageGameObject.rectTransform.anchoredPosition = new Vector2(600 * number, 0);
+            stageGameObject.rectTransform.localScale = Vector3.one;
             stageGameObject.text.text = level + "-" + (number + 1).ToString().PadLeft(2, '0');
             stageGameObject.text.color = deselectColor;
         }
@@ -258,6 +265,9 @@ namespace StageSelectorUI
 
     public class StageSelector : MonoBehaviour
     {
+        private static StageSelector _instance = null;
+        public static StageSelector instance => _instance ??= FindObjectOfType<StageSelector>();
+
         public List<StageContainer> stageContainerList;
         public GameObject stagePrefab;
         public GameObject carDummyUIPrefab;
@@ -291,6 +301,13 @@ namespace StageSelectorUI
             loadingPanel.LoadScene(selectedStage.level + (selectedStage.number + 1).ToString().PadLeft(2, '0'));
         }
 
+        public bool IsLevelLocked(string stageName)
+        {
+            var targetLevel = stageContainerList.Find(cont => cont.level == stageName);
+
+            return targetLevel == null || targetLevel.isLocked;
+        }
+
         private void Awake()
         {
             SelectEvent.AddListener(stage =>
@@ -316,6 +333,11 @@ namespace StageSelectorUI
                     stage.Init(go, stageContainer, SelectEvent, stageContainer.deselectColor, stageContainer);
                 });
             }
+        }
+
+        private void OnDestroy()
+        {
+            _instance = null;
         }
     }
 };

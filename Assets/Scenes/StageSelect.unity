@@ -405,14 +405,17 @@ MonoBehaviour:
     stageCount: 5
     deselectColor: {r: 0.8666667, g: 0.654902, b: 0.30588236, a: 1}
     containerGameObject: {fileID: 685602393}
+    isLocked: 0
   - level: B
     stageCount: 5
     deselectColor: {r: 0.24705882, g: 0.6, b: 0.89411765, a: 1}
     containerGameObject: {fileID: 1137659262}
+    isLocked: 1
   - level: R
     stageCount: 5
     deselectColor: {r: 0.7764706, g: 0.34117648, b: 0.39607844, a: 1}
     containerGameObject: {fileID: 858162261}
+    isLocked: 1
   stagePrefab: {fileID: 2966189818923758374, guid: 3c2d7d37c21d21e4f90f7e660fc04df8, type: 3}
   carDummyUIPrefab: {fileID: 1393782326756840504, guid: cbde430030dd49a46bc1833cdb7e3e43, type: 3}
   carDummyUI: {fileID: 0}
@@ -3531,6 +3534,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadingPanel: {fileID: 1066257584}
+  optionPanel: {fileID: 0}
 --- !u!114 &1547836319
 MonoBehaviour:
   m_ObjectHideFlags: 0
