@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4599061048518659437}
   - component: {fileID: 4599061048518659436}
   - component: {fileID: 4599061048518659434}
-  - component: {fileID: 3859724606372057920}
   - component: {fileID: 9055559042675868018}
   m_Layer: 0
   m_Name: Player
@@ -130,25 +129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa2d199b8057b874584421d77a941a91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultStopItemCount: 5
-  defaultSlowItemCount: 5
-  allowStop: 1
-  allowSlow: 1
+  defaultValue: []
   themePalette: {fileID: 11400000, guid: 8d8fa149cebabc9449e8553d8d2c322b, type: 2}
---- !u!114 &3859724606372057920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4599061048518659439}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 06699ebdf4446984b8c25bb04cd8a230, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bgmDB: {fileID: 11400000, guid: ee3c2fc8d97a34441a9d72183df31044, type: 2}
-  isLoop: 1
 --- !u!82 &9055559042675868018
 AudioSource:
   m_ObjectHideFlags: 0
