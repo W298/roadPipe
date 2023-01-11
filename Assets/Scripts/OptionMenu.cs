@@ -27,6 +27,12 @@ public class OptionMenu : MonoBehaviour
         resolutionAry = Screen.resolutions;
 
         resIndex = resolutionAry.ToList().IndexOf(Screen.currentResolution);
+
+        if (resIndex == -1)
+        {
+            resIndex = resolutionAry.Length - 1;
+        }
+
         resolutionText.text = resolutionAry[resIndex].ToString();
 
         audioMixer.GetFloat("volume", out var currentVolume);

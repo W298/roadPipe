@@ -93,11 +93,12 @@ public class Car : MonoBehaviour
         {
             var targetRoad = pathInfo.road;
             var isTargetCurrentRoad = targetRoad == currentRoad;
+            var isAttachIndexEqual = pathInfo.attachIndex == currentRoadRunningIndex;
 
             targetRoad.ApplyDashColor(pathInfo.attachIndex, backgroundSprite.color);
 
             var mask = Instantiate(maskPrefab, targetRoad.transform.position, targetRoad.transform.rotation);
-            mask.GetComponent<SpriteMask>().sprite = targetRoad.GetMask(isTargetCurrentRoad ? t : 0, pathInfo.attachIndex);
+            mask.GetComponent<SpriteMask>().sprite = targetRoad.GetMask(isTargetCurrentRoad && isAttachIndexEqual ? t : 0, pathInfo.attachIndex);
 
             targetRoad.maskGameObjectList.Add(mask);
             pathVisualizerList.Add(new PathVisualizerInfo(this, pathInfo, mask));
@@ -172,7 +173,7 @@ public class Car : MonoBehaviour
         if (hasValidPath)
         {
             var index = path.FindIndex(info => info.road == target);
-            if (index == -1 || index < currentRoadIndex) return;
+            if (index == -1) return;
         }
 
         PathFind(currentRoadRunningIndex, currentRoad != null ? currentRoad : startPoint, destinationPoint);
@@ -297,6 +298,36 @@ public class Car : MonoBehaviour
         yield return new WaitForFixedUpdate();
     }
 
+    private IEnumerator UTurn(GameObject[] points)
+    {
+        yield return UTurn(points.Select(point => point.transform.position).ToArray());
+    }
+
+    private IEnumerator UTurn(Vector3[] vectors)
+    {
+        var originalPosition = transform.position;
+        switch (t)
+        {
+            case <= 0.32f:
+                transform.position = Linear(vectors[0], vectors[1], t * 3.125f);
+                break;
+            case >= 0.68f:
+                transform.position = Linear(vectors[3], vectors[4], (t - 0.68f) * 3.125f);
+                break;
+            default:
+                transform.position = Bezier(vectors[1], vectors[2], vectors[3], (t - 0.32f) * (10f / 3.6f));
+                break;
+        }
+
+        transform.right = transform.position - originalPosition;
+
+        t += speed / 2;
+
+        UpdatePathVisualizer();
+
+        yield return new WaitForFixedUpdate();
+    }
+
     private bool InitCurrentRoad()
     {
         currentRoad = path[currentRoadIndex].road;
@@ -308,17 +339,24 @@ public class Car : MonoBehaviour
     private IEnumerator MoveAlongWayPoints()
     {
         var points = currentRoad.wayPointAry[currentRoadRunningIndex].points;
-        if (points.Length <= 2)
+        
+        if (points.Length == 2)
         {
             while (t < 0.8f) yield return LinearMove(points);
             if (CheckStopEffector()) yield return WaitForStopEffector();
             while (t < 1) yield return LinearMove(points);
         }
-        else
+        else if (points.Length == 3)
         {
             while (t < 0.8f) yield return BezierMove(points);
             if (CheckStopEffector()) yield return WaitForStopEffector();
             while (t < 1) yield return BezierMove(points);
+        }
+        else
+        {
+            while (t < 0.8f) yield return UTurn(points);
+            if (CheckStopEffector()) yield return WaitForStopEffector();
+            while (t < 1) yield return UTurn(points);
         }
     }
 
@@ -368,13 +406,15 @@ public class Car : MonoBehaviour
 
         foreach (var adjCell in targetCell.GetConnectedCellNotNull())
         {
-            if (currentRoadIndex >= 1 && path[currentRoadIndex - 1].road == adjCell) continue;
             if (adjCell is not Road adjRoad) continue;
 
             var targetAdjIndex = targetCell is Road targetRoad 
                 ? targetRoad.GetWayPointIndexTo(targetRoad.GetRelativePosition(adjRoad)) 
                 : currentRoadRunningIndex;
             var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetRelativePosition(targetCell));
+            var isCellUTurn = targetCell.cellConnection.Count(b => b) == 1;
+
+            if (currentRoadIndex >= 1 && path[currentRoadIndex - 1].road == adjCell && (!isCellUTurn || path[currentRoadIndex - 1].attachIndex == adjRoadAdjIndex)) continue;
 
             if (adjRoadAdjIndex != -1 && targetAdjIndex == currentRoadRunningIndex)
             {
@@ -399,6 +439,8 @@ public class Car : MonoBehaviour
     private IEnumerator CrashCar()
     {
         crashed = true;
+
+        GetComponent<AudioSource>().Play();
 
         var crashParticleGameObject = Instantiate(crashParticleSystem, Vector3.zero, Quaternion.Euler(-90, 0, 0));
         crashParticleGameObject.transform.parent = transform;
@@ -457,5 +499,10 @@ public class Car : MonoBehaviour
         backgroundSprite = GetComponent<SpriteRenderer>();
         canvas = GetComponentInChildren<Canvas>();
         skullUI = canvas.transform.GetChild(0).gameObject;
+    }
+
+    private void OnDestroy()
+    {
+        ClearPathVisualizer();
     }
 }

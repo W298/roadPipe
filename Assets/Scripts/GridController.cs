@@ -3,20 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PathFindResult
-{
-    public List<PathInfo> path;
-    public Cell start;
-    public Cell destination;
-
-    public PathFindResult(List<PathInfo> path, Cell start, Cell destination)
-    {
-        this.path = path;
-        this.start = start;
-        this.destination = destination;
-    }
-}
-
 public class GridController : MonoBehaviour
 {
     private static GridController _instance;
@@ -26,8 +12,6 @@ public class GridController : MonoBehaviour
     public static Grid grid => _grid ??= instance.GetComponent<Grid>();
 
     public Point[] pointAry;
-
-    private List<PathFindResult> pathFindResultList = new List<PathFindResult>();
 
     public Vector3 GetCellPosition(Vector3 worldPosition)
     {
@@ -56,29 +40,14 @@ public class GridController : MonoBehaviour
         return cell;
     }
 
-    public void OnRotate(Cell target)
-    {
-        pathFindResultList.RemoveAll(result => result.path.Exists(info => info.road == target));
-    }
-
     public List<PathInfo> RequestPath(int startRunningIndex, Cell start, Cell destination)
-    {
-        var pathFindResult = pathFindResultList.FirstOrDefault(res => res.start == start && res.destination == destination);
-        return pathFindResult == null ? CalculatePath(startRunningIndex, start, destination) : pathFindResult.path;
-    }
-
-    private List<PathInfo> CalculatePath(int startRunningIndex, Cell start, Cell destination)
     {
         var shortestPath = new List<PathInfo>();
         var currentPath = new List<PathInfo>();
 
         PathFindRecursive(ref shortestPath, currentPath, startRunningIndex, start, destination);
         
-        if (shortestPath.Count <= 0) return new List<PathInfo>();
-
-        pathFindResultList.Add(new PathFindResult(shortestPath, start, destination));
-
-        return shortestPath;
+        return shortestPath.Count <= 0 ? new List<PathInfo>() : shortestPath;
     }
 
     private void PathFindRecursive(ref List<PathInfo> shortestPath, List<PathInfo> path, int startRunningIndex, Cell start, Cell destination)
@@ -101,12 +70,17 @@ public class GridController : MonoBehaviour
             }
 
             if (cell is not Road adjRoad) continue;
-            if (path.Exists(p => p.road == cell)) continue;
 
             var targetAdjIndex = start is Road startRoad
                 ? startRoad.GetWayPointIndexTo(startRoad.GetRelativePosition(adjRoad))
                 : 100;
             var adjRoadAdjIndex = adjRoad.GetWayPointIndexFrom(adjRoad.GetRelativePosition(start));
+            var isCellUTurn = start.cellConnection.Count(b => b) == 1;
+
+            if (path.Count >= 2 && path[^2].road == adjRoad && (!isCellUTurn || path[^2].attachIndex == adjRoadAdjIndex))
+            {
+                continue;
+            }
 
             if (adjRoadAdjIndex != -1 && (targetAdjIndex == startRunningIndex || targetAdjIndex == 100))
             {

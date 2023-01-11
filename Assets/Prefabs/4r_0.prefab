@@ -218,7 +218,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1110838205449332469}
   m_Layer: 0
-  m_Name: 2_mask
+  m_Name: 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -349,7 +349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4297695499365639819}
   m_Layer: 0
-  m_Name: 0_mask
+  m_Name: 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -636,7 +636,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotation: 0
   cellConnection: 01010101
-  dashList: []
   maskList: []
   maskGameObjectList: []
   roadInfo: {fileID: 11400000, guid: 68e96077a732f0b419286f347ebe1097, type: 2}
@@ -713,7 +712,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6335688316642706302}
   m_Layer: 0
-  m_Name: 3_mask
+  m_Name: 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -747,7 +746,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3385444869048170358}
   m_Layer: 0
-  m_Name: 1_mask
+  m_Name: 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

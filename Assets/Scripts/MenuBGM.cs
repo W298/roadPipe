@@ -51,7 +51,7 @@ public class MenuBGM : MonoBehaviour
 
             var levelBGM = stageBGMDB.levels.Find(level => level.name == scene.name[0].ToString());
             stageAudioSource.clip = levelBGM.defaultBGMClip;
-            FadeInAudio(BGMType.STAGE, 1f);
+            FadeInAudio(BGMType.STAGE, 0.8f);
         }
     }
 

@@ -17,8 +17,8 @@ MonoBehaviour:
     defaultBGMClip: {fileID: 8300000, guid: f21c848290798e94abfe0e90dfa41ad4, type: 3}
     stageList: []
   - name: B
-    defaultBGMClip: {fileID: 8300000, guid: b2aa2c9e574d40d4991859206cbb22ec, type: 3}
+    defaultBGMClip: {fileID: 8300000, guid: 79e47904960b49d41809e419ad116281, type: 3}
     stageList: []
   - name: R
-    defaultBGMClip: {fileID: 8300000, guid: 7f4eedf24a1d81d43aa841e016ced5f6, type: 3}
+    defaultBGMClip: {fileID: 8300000, guid: 698332ce3fecaf44cb91debbad2b2cd0, type: 3}
     stageList: []

@@ -103,8 +103,6 @@ public class Cell : MonoBehaviour
         {
             car.OnRotate(this);
         }
-
-        GridController.instance.OnRotate(this);
     }
 
     public void RotateConnection()
